@@ -1,22 +1,37 @@
 #include "main.h"
+#define NUM_SEMS 3
 
 int main(){
-    long key = 32766;
-    int semid = safesemid(key,3,0777);//3 semaphores: mutex, leftbound, rightbound
-    int shmid = safeshmget(key,0,0);
+
+    int semid = safesemget(KEY,NUM_SEMS,0666 | IPC_CREAT);//3 semaphores: mutex, leftbound, rightbound
+    int shmid = safeshmget(KEY,0,0);
+    union semun semctlarg;
+    unsigned short seminit[NUM_SEMS];
+    seminit[0] = 1;//mutex initialized to 1
+    seminit[1] = 0;//leftbound initialized to 0
+    seminit[2] = 0;//rightbound initialized to 0
+    semctlarg.array = seminit;
+    semctl(semid, NUM_SEMS, SETALL, semctlarg);//initialize the semaphore array
+
 
     struct common *shared = (struct common *)shmat(shmid, 0, 0);
+    shared->crossed = 0;
+    shared->crossing = 0;
+    shared->direction = NONE;
+    shared->leftToRightWaiting = 0;
+    shared->rightToLeftWaiting = 0;
 
     makeLeftToRight();
+    makeRightToLeft();
 }
 
-int safesemid(key_t k, int i1, int i2){
-    int returnVar = semid(k,i1,i2);
+int safesemget(key_t k, int i1, int i2){
+    int returnVar = semget(k,i1,i2);
     if(returnVar < 0) perror("ERROR WHILE GETTING SEMID!");
     return returnVar;
 }
 
-int safeshmget(key_t k, int i1, int i2){
+int safeshmget(key_t k, size_t i1, int i2){
     int shmid = shmget(k,i1,i2);
     if(shmid < 0) perror("ERROR WHILE GETTING SHMID!");
     return shmid;

@@ -9,11 +9,13 @@
 #include <sys/ipc.h>
 #include <sys/shm.h>
 
-#define NONE 0;
-#define LEFTTORIGHT 1;
-#define RIGHTTOLEFT 2;
-int safesemid(key_t, int, int);
-int safeshmget(key_t, int, int);
+#define NONE 0
+#define LEFTTORIGHT 1
+#define RIGHTTOLEFT 2
+#define KEY 32766
+
+int safesemget(key_t, int, int);
+int safeshmget(key_t, size_t , int);
 int main();
 void makeLeftToRight();
 void makeRightToLeft();
