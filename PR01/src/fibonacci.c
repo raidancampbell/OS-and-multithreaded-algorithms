@@ -2,7 +2,7 @@
 #include <unistd.h>
 #include <time.h>
 #include <stdlib.h>
-#include <wait.h>
+#include <sys/wait.h>
 #include "fibonacci.h"
 
 #define get_time time(NULL)
