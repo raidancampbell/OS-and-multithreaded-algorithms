@@ -1,10 +1,9 @@
 #include "main.h"
-#define NUM_SEMS 3
 
 int main(){
 
     int semid = safesemget(KEY,NUM_SEMS,0666 | IPC_CREAT);//3 semaphores: mutex, leftbound, rightbound
-    int shmid = safeshmget(KEY,0,0);
+    int shmid = safeshmget(KEY+1,0,0);
     union semun semctlarg;
     unsigned short seminit[NUM_SEMS];
     seminit[0] = 1;//mutex initialized to 1
@@ -23,6 +22,13 @@ int main(){
 
     makeLeftToRight();
     makeRightToLeft();
+
+
+    wait(0);//wait for the children to die
+    wait(0);
+    //cleanup
+    semctl(semid, NUM_SEMS, IPC_RMID, 0);
+    shmctl(shmid, IPC_RMID, 0);
 }
 
 int safesemget(key_t k, int i1, int i2){

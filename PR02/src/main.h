@@ -12,6 +12,7 @@
 #define NONE 0
 #define LEFTTORIGHT 1
 #define RIGHTTOLEFT 2
+#define NUM_SEMS 3
 #define KEY 32766
 
 int safesemget(key_t, int, int);
