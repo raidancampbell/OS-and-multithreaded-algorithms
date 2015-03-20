@@ -1,8 +1,8 @@
 CC = clang
 CFLAGS = -g -Wall
 LIBS = # None yet...
-OUTPUT = main smoker.bin agent.bin
-HEADERS = main.h
+OUTPUT = main car.bin
+HEADERS = main.h car.h
 
 all: $(OUTPUT)
 

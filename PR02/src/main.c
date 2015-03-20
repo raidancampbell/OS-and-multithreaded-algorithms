@@ -3,7 +3,7 @@
 int main(){
 
     int semid = safesemget(KEY,NUM_SEMS,0666 | IPC_CREAT);//3 semaphores: mutex, leftbound, rightbound
-    int shmid = safeshmget(KEY+1,0,0);
+    int shmid = safeshmget();
     union semun semctlarg;
     unsigned short seminit[NUM_SEMS];
     seminit[0] = 1;//mutex initialized to 1
@@ -20,11 +20,8 @@ int main(){
         if(rand() % 2 == 0) makeRightToLeft();
         else makeLeftToRight();
     }
+    for(int i = 0; i<12; i++) wait(0);
 
-    makeLeftToRight();
-    makeRightToLeft();
-    wait(0);//wait for the children to die
-    wait(0);
     //cleanup
     semctl(semid, NUM_SEMS, IPC_RMID, 0);
     shmctl(shmid, IPC_RMID, 0);
@@ -38,8 +35,8 @@ int safesemget(key_t k, int i1, int i2){
     return returnVar;
 }
 
-int safeshmget(key_t k, size_t i1, int i2){
-    int shmid = shmget(k,i1,i2);
+int safeshmget(){
+    int shmid = shmget(IPC_PRIVATE,sizeof(struct common),IPC_CREAT | 0666);
     if(shmid < 0) perror("ERROR WHILE GETTING SHMID!");
     return shmid;
 }
@@ -48,12 +45,13 @@ void makeLeftToRight(){
     pid_t child = fork();
     if(child < 0){
         perror("Error whild creating Left To Right child process!");
-    } else if(child == 0){
+    } else if(child != 0){
         //this is the parent
         return;
     } else {
         execl("car.bin", LEFTTORIGHT);
         exit(EXIT_SUCCESS);
+
         //this is the child
     }
 }
@@ -63,12 +61,12 @@ void makeRightToLeft(){
     if(child < 0){
         perror("Error whild creating Right To Left child process!");
     } else if(child == 0){
-        //this is the parent
-        return;
-    } else {
         execl("car.bin", RIGHTTOLEFT);
         exit(EXIT_SUCCESS);
         //this is the child
+    } else {
+        return;
+        //this is the parent
     }
 }
 

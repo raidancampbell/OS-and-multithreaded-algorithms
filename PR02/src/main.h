@@ -22,7 +22,7 @@
 
 
 int safesemget(key_t, int, int);
-int safeshmget(key_t, size_t , int);
+int safeshmget();
 int main();
 void makeLeftToRight();
 void makeRightToLeft();
