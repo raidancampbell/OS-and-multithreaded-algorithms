@@ -4,4 +4,4 @@ project(asn1)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 set(SOURCE_FILES PR02/src/main.c)
-add_executable(asn1 ${SOURCE_FILES} PR02/src/main.h)
+add_executable(asn1 ${SOURCE_FILES} PR02/src/main.h PR02/src/car.h)

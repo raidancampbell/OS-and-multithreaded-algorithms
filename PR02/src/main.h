@@ -14,12 +14,19 @@
 #define RIGHTTOLEFT 2
 #define NUM_SEMS 3
 #define KEY 32766
+#define WAIT -1
+#define SIGNAL 1
+#define MUTEX 0
+#define LEFTBOUND 1
+#define RIGHTBOUND 2
+
 
 int safesemget(key_t, int, int);
 int safeshmget(key_t, size_t , int);
 int main();
 void makeLeftToRight();
 void makeRightToLeft();
+struct common * initializeSharedMemory(int, int);
 
 struct common {
     int crossing;//number of cars crossing
@@ -27,4 +34,6 @@ struct common {
     int leftToRightWaiting;//number of rightbound cars waiting
     int rightToLeftWaiting;//number of leftbound cars waiting
     int direction;//enumerated direction as NONE, LEFTTORIGHT, or RIGHTTOLEFT
+    int semkey;
+    int shmkey;
 };

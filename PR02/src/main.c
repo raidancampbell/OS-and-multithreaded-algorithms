@@ -10,25 +10,26 @@ int main(){
     seminit[1] = 0;//leftbound initialized to 0
     seminit[2] = 0;//rightbound initialized to 0
     semctlarg.array = seminit;
-    semctl(semid, NUM_SEMS, SETALL, semctlarg);//initialize the semaphore array
+    int semset = semctl(semid, NUM_SEMS, SETALL, semctlarg);//initialize the semaphore array
+    if(semset<0) perror("ERROR ON SETTING SEMAPHORE VALUES!");
 
+    struct common *shared = initializeSharedMemory(shmid, semid);
 
-    struct common *shared = (struct common *)shmat(shmid, 0, 0);
-    shared->crossed = 0;
-    shared->crossing = 0;
-    shared->direction = NONE;
-    shared->leftToRightWaiting = 0;
-    shared->rightToLeftWaiting = 0;
+    //make 12 random cars
+    for(int i = 0; i< 12; i++){
+        if(rand() % 2 == 0) makeRightToLeft();
+        else makeLeftToRight();
+    }
 
     makeLeftToRight();
     makeRightToLeft();
-
-
     wait(0);//wait for the children to die
     wait(0);
     //cleanup
     semctl(semid, NUM_SEMS, IPC_RMID, 0);
     shmctl(shmid, IPC_RMID, 0);
+
+    return EXIT_SUCCESS;
 }
 
 int safesemget(key_t k, int i1, int i2){
@@ -43,7 +44,6 @@ int safeshmget(key_t k, size_t i1, int i2){
     return shmid;
 }
 
-
 void makeLeftToRight(){
     pid_t child = fork();
     if(child < 0){
@@ -52,7 +52,7 @@ void makeLeftToRight(){
         //this is the parent
         return;
     } else {
-        execl();
+        execl("car.bin", LEFTTORIGHT);
         exit(EXIT_SUCCESS);
         //this is the child
     }
@@ -66,8 +66,20 @@ void makeRightToLeft(){
         //this is the parent
         return;
     } else {
-        execl();
+        execl("car.bin", RIGHTTOLEFT);
         exit(EXIT_SUCCESS);
         //this is the child
     }
+}
+
+struct common* initializeSharedMemory(int shmid, int semid){
+    struct common* shared = (struct common *)shmat(shmid, 0, 0);
+    shared->crossed = 0;
+    shared->crossing = 0;
+    shared->direction = NONE;
+    shared->leftToRightWaiting = 0;
+    shared->rightToLeftWaiting = 0;
+    shared->shmkey = shmid;
+    shared->semkey = semid;
+    return shared;
 }
