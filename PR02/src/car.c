@@ -1,22 +1,15 @@
 #include <stdio.h>
 #include <time.h>
-#include "main.h"
 #include "car.h"
-
+#include "main.h"
 void car(int direction, struct common* shared){
 
     if(direction != LEFTTORIGHT && direction != RIGHTTOLEFT) perror("ERROR: INVALID ARGUMENT GIVEN TO CAR PROCESS");
 
     int semid, shmid;
-    int mypid = getpid();
     shmid = shmget(KEY + 1, 0, 0);
     //shared = (struct common *)shmat(shmid, 0, 0);
     semid = shared->semkey;
-
-    struct sembuf wait_leftbound = {LEFTBOUND, WAIT, 0};
-    struct sembuf signal_leftbound = {LEFTBOUND, SIGNAL, 0};
-    struct sembuf wait_rightbound = {RIGHTBOUND, WAIT, 0};
-    struct sembuf signal_rightbound = {RIGHTBOUND, SIGNAL, 0};
 
     if(direction == LEFTTORIGHT) lefttoright(&shared);
     else righttoleft(shared);
@@ -132,7 +125,7 @@ else if (XingCount=0 and EastBndWaitCount=0 and WestBndWaitCount=0)
 
 void waitOrSignal(int semid, struct sembuf operation){
     if(semop(semid, &operation, 1) < 0) {
-        perror("ERROR ON SEMAPHORE WAIT/SIGNAL");
+        perror("ERROR ON SEMAPHORE WAIT/SIGNAL!\nSEMID: %d\t\t", semid);
         _exit(EXIT_FAILURE);
     }
 }
