@@ -13,16 +13,17 @@ void car(int direction, struct common* shared){
 
     if(direction != LEFTTORIGHT && direction != RIGHTTOLEFT) perror("ERROR: INVALID ARGUMENT GIVEN TO CAR PROCESS");
 
-    int shmid;
-    shmid = shmget(KEY + 1, 0, 0);
-    shared = (struct common *)shmat(shmid, 0, 0);
+    //int shmid;
+    //shmid = shmget(IPC_PRIVATE,sizeof(struct common),IPC_CREAT | 0666);
+    //shared = (struct common *)shmat(shmid, 0, 0);
 
     if(direction == LEFTTORIGHT) lefttoright(shared);
     else righttoleft(shared);
 }
 
 void lefttoright(struct common *shared){
-    printf("%d:\tlefttoright car created. Executing", getpid());
+    printf("\n%d:\tlefttoright car created. Executing", getpid());
+    fflush(stdout);
     struct sembuf wait_mutex = {MUTEX, WAIT, 0};
     struct sembuf signal_mutex = {MUTEX, SIGNAL, 0};
     struct sembuf wait_leftbound = {LEFTBOUND, WAIT, 0};
@@ -54,7 +55,7 @@ else signal(mutex)
         shared->direction = LEFTTORIGHT;
         waitOrSignal(shared->semkey, signal_mutex);
     }
-    cross();//actually takes some time
+    cross(LEFTTORIGHT);//actually takes some time
     waitOrSignal(shared->semkey, wait_mutex);
     shared->crossing--;
     shared->crossed++;
@@ -74,7 +75,8 @@ else signal(mutex)
 }
 
 void righttoleft(struct common *shared){
-    printf("%d:\trighttoleft car created. Executing", getpid());
+    printf("\n%d:\trighttoleft car created. Executing", getpid());
+    fflush(stdout);
     struct sembuf wait_mutex = {MUTEX, WAIT, 0};
     struct sembuf signal_mutex = {MUTEX, SIGNAL, 0};
     struct sembuf wait_rightbound = {RIGHTBOUND, WAIT, 0};
@@ -111,7 +113,7 @@ else if (XingCount=0 and EastBndWaitCount=0 and WestBndWaitCount=0)
         shared->direction = RIGHTTOLEFT;
         waitOrSignal(shared->semkey, signal_mutex);
     }
-    cross();
+    cross(RIGHTTOLEFT);
     waitOrSignal(shared->semkey, wait_mutex);
     shared->crossed++;
     shared->crossing--;
@@ -133,16 +135,19 @@ else if (XingCount=0 and EastBndWaitCount=0 and WestBndWaitCount=0)
 void waitOrSignal(int semid, struct sembuf operation){
     if(semop(semid, &operation, 1) < 0) {
         perror("ERROR ON SEMAPHORE WAIT/SIGNAL!");
-	printf("\nSEMID: %d\t\t", semid);
+	printf("\tSEMID: %d\n", semid);
         fflush(stdout);
 	_exit(EXIT_FAILURE);
     }
 }
 
-void cross(){
-    printf("PID: %d IS CROSSING NOW", getpid());
+void cross(int direction){
+    if(direction==LEFTTORIGHT)printf("\nPID: %d IS CROSSING LEFT TO RIGHT NOW", getpid());
+    else printf("\nPID: %d IS CROSSING RIGHT TO LEFT NOW", getpid());
+    fflush(stdout);
     struct timespec sleepValue = {0};
     sleepValue.tv_nsec = 500 * 1000000;
     nanosleep(&sleepValue, NULL);
-    printf("PID: %d HAS CROSSED NOW", getpid());
+    printf("\nPID: %d HAS CROSSED NOW", getpid());
+    fflush(stdout);
 }

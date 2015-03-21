@@ -18,19 +18,23 @@ int main(){
     struct common *shared = initializeSharedMemory(shmid, semid);
 
     //make 12 random cars
-    printf("Parent:\tgenerating cars");
+    printf("\nParent:\tgenerating cars");
+    fflush(stdout);
     int i = 0;
     for(; i< 12; i++){
         if(rand() % 2 == 0) makeRightToLeft(shared);
         else makeLeftToRight(shared);
+    fflush(stdout);
     }
-    printf("Parent:\tcars generated, waiting for them to finish.");
+    printf("\nParent:\tcars generated, waiting for them to finish.");
+    fflush(stdout);
     for(i = 0; i<12; i++) wait(0);
-    printf("Parent:\tcars finished. cleaning up.");
+    printf("\nParent:\tcars finished. cleaning up.");
     //cleanup
     semctl(semid, NUM_SEMS, IPC_RMID, 0);
     shmctl(shmid, IPC_RMID, 0);
-    printf("Parent:\tcleaned up. Exiting...");
+    printf("\nParent:\tcleaned up. Exiting...\n");
+    fflush(stdout);
     return EXIT_SUCCESS;
 }
 
