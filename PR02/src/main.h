@@ -1,6 +1,8 @@
 //
 // Created by Aidan Campbell on 3/15/15.
 //
+#ifndef _MAINH_
+#define _MAINH_
 
 #include <stdio.h>
 #include <unistd.h>
@@ -45,3 +47,6 @@ int main();
 void makeLeftToRight(struct common*);
 void makeRightToLeft(struct common*);
 struct common * initializeSharedMemory(int, int);
+
+
+#endif
