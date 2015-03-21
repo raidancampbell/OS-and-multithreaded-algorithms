@@ -20,14 +20,6 @@
 #define LEFTBOUND 1
 #define RIGHTBOUND 2
 
-
-int safesemget(key_t, int, int);
-int safeshmget();
-int main();
-void makeLeftToRight();
-void makeRightToLeft();
-struct common * initializeSharedMemory(int, int);
-
 struct common {
     int crossing;//number of cars crossing
     int crossed;//number of cars that have crossed in this current direction iteration
@@ -37,3 +29,11 @@ struct common {
     int semkey;
     int shmkey;
 };
+
+int safesemget(key_t, int, int);
+int safeshmget();
+int main();
+void makeLeftToRight(struct common*);
+void makeRightToLeft(struct common*);
+struct common * initializeSharedMemory(int, int);
+

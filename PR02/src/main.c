@@ -1,4 +1,5 @@
 #include "main.h"
+#include "car.h"
 
 int main(){
 
@@ -17,8 +18,8 @@ int main(){
 
     //make 12 random cars
     for(int i = 0; i< 12; i++){
-        if(rand() % 2 == 0) makeRightToLeft();
-        else makeLeftToRight();
+        if(rand() % 2 == 0) makeRightToLeft(shared);
+        else makeLeftToRight(shared);
     }
     for(int i = 0; i<12; i++) wait(0);
 
@@ -41,7 +42,7 @@ int safeshmget(){
     return shmid;
 }
 
-void makeLeftToRight(){
+void makeLeftToRight(struct common* shared){
     pid_t child = fork();
     if(child < 0){
         perror("Error whild creating Left To Right child process!");
@@ -49,19 +50,19 @@ void makeLeftToRight(){
         //this is the parent
         return;
     } else {
-        execl("car.bin", LEFTTORIGHT);
+        car(LEFTTORIGHT, shared);
         exit(EXIT_SUCCESS);
 
         //this is the child
     }
 }
 
-void makeRightToLeft(){
+void makeRightToLeft(struct common* shared){
     pid_t child = fork();
     if(child < 0){
         perror("Error whild creating Right To Left child process!");
     } else if(child == 0){
-        execl("car.bin", RIGHTTOLEFT);
+        car(RIGHTTOLEFT, shared);
         exit(EXIT_SUCCESS);
         //this is the child
     } else {

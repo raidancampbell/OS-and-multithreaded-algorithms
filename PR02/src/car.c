@@ -5,7 +5,7 @@
 #define NANO_SECOND_MULTIPLIER  1000000  // 1 millisecond = 1,000,000 Nanoseconds
 const long INTERVAL_MS = 500 * NANO_SECOND_MULTIPLIER;
 
-void car(int direction, struct common shared){
+void car(int direction, struct common* shared){
 
     if(direction != LEFTTORIGHT && direction != RIGHTTOLEFT) perror("ERROR: INVALID ARGUMENT GIVEN TO CAR PROCESS");
 
@@ -13,7 +13,7 @@ void car(int direction, struct common shared){
     int mypid = getpid();
     shmid = shmget(KEY + 1, 0, 0);
     //shared = (struct common *)shmat(shmid, 0, 0);
-    semid = shared.semkey;
+    semid = shared->semkey;
 
     struct sembuf wait_leftbound = {LEFTBOUND, WAIT, 0};
     struct sembuf signal_leftbound = {LEFTBOUND, SIGNAL, 0};
@@ -21,7 +21,7 @@ void car(int direction, struct common shared){
     struct sembuf signal_rightbound = {RIGHTBOUND, SIGNAL, 0};
 
     if(direction == LEFTTORIGHT) lefttoright(&shared);
-    else righttoleft(&shared);
+    else righttoleft(shared);
 }
 
 void lefttoright(struct common *shared){
@@ -116,14 +116,14 @@ else if (XingCount=0 and EastBndWaitCount=0 and WestBndWaitCount=0)
     cross();
     waitOrSignal(shared->semkey, wait_mutex);
     shared->crossed++;
-    shared.crossing--;
+    shared->crossing--;
     if(shared->rightToLeftWaiting!=0 && ((shared->crossed+shared->crossing)<5 || shared->leftToRightWaiting==0))
         waitOrSignal(shared->semkey, signal_rightbound);
     else if(shared->crossing==0 && shared->leftToRightWaiting!=0 && (shared->rightToLeftWaiting==0 || (shared->crossing+shared->crossed)>=5)){
         shared->direction = LEFTTORIGHT;
         shared->crossed = 0;
         waitOrSignal(shared->semkey, signal_leftbound);
-    } else if(shared.crossing==0 && shared->rightToLeftWaiting==0 && shared->rightToLeftWaiting==0){
+    } else if(shared->crossing==0 && shared->rightToLeftWaiting==0 && shared->rightToLeftWaiting==0){
         shared->direction = NONE;
         shared->crossed = 0;
         waitOrSignal(shared->semkey, signal_mutex);
@@ -140,7 +140,7 @@ void waitOrSignal(int semid, struct sembuf operation){
 }
 
 void cross(){
-    timespec sleepValue = {0};
+    struct timespec sleepValue = {0};
     sleepValue.tv_nsec = INTERVAL_MS;
     nanosleep(&sleepValue, NULL);
 }
