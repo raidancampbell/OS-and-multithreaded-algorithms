@@ -1,17 +1,25 @@
-#include <stdio.h>
 #include <time.h>
 #include "car.h"
-#include "main.h"
+#include <sys/sem.h>
+#include <stdio.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <sys/ipc.h>
+#include <sys/shm.h>
+#include <sys/wait.h>
+
+//#include "main.h"
 void car(int direction, struct common* shared){
 
     if(direction != LEFTTORIGHT && direction != RIGHTTOLEFT) perror("ERROR: INVALID ARGUMENT GIVEN TO CAR PROCESS");
 
-    int semid, shmid;
+    int shmid;//, semid;
     shmid = shmget(KEY + 1, 0, 0);
-    //shared = (struct common *)shmat(shmid, 0, 0);
-    semid = shared->semkey;
+    shared = (struct common *)shmat(shmid, 0, 0);
+    //semid = shared->semkey;
 
-    if(direction == LEFTTORIGHT) lefttoright(&shared);
+    if(direction == LEFTTORIGHT) lefttoright(shared);
     else righttoleft(shared);
 }
 
@@ -125,13 +133,17 @@ else if (XingCount=0 and EastBndWaitCount=0 and WestBndWaitCount=0)
 
 void waitOrSignal(int semid, struct sembuf operation){
     if(semop(semid, &operation, 1) < 0) {
-        perror("ERROR ON SEMAPHORE WAIT/SIGNAL!\nSEMID: %d\t\t", semid);
-        _exit(EXIT_FAILURE);
+        perror("ERROR ON SEMAPHORE WAIT/SIGNAL!");
+	printf("\nSEMID: %d\t\t", semid);
+        fflush(stdout);
+	_exit(EXIT_FAILURE);
     }
 }
 
 void cross(){
+    printf("PID: %d IS CROSSING NOW", getpid());
     struct timespec sleepValue = {0};
     sleepValue.tv_nsec = 500 * 1000000;
     nanosleep(&sleepValue, NULL);
+    printf("PID: %d HAS CROSSED NOW", getpid());
 }

@@ -1,4 +1,4 @@
-CC = clang
+CC = gcc
 CFLAGS = -g -Wall
 LIBS = # None yet...
 OUTPUT = main car.bin
