@@ -5,9 +5,10 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
-#include <sys/sem.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
+#include <sys/wait.h>
+#include <sys/types.h>
 
 #define NONE 0
 #define LEFTTORIGHT 1
@@ -30,10 +31,17 @@ struct common {
     int shmkey;
 };
 
-int safesemget(key_t, int, int);
+union semun {
+    int              val;    /* Value for SETVAL */
+    struct semid_ds *buf;    /* Buffer for IPC_STAT, IPC_SET */
+    unsigned short  *array;  /* Array for GETALL, SETALL */
+    struct seminfo  *__buf;  /* Buffer for IPC_INFO
+                                (Linux-specific) */
+};
+
+int safesemget();
 int safeshmget();
 int main();
 void makeLeftToRight(struct common*);
 void makeRightToLeft(struct common*);
 struct common * initializeSharedMemory(int, int);
-

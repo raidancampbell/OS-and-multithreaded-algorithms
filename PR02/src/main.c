@@ -1,9 +1,10 @@
 #include "main.h"
 #include "car.h"
+#include <sys/sem.h>
 
 int main(){
 
-    int semid = safesemget(KEY,NUM_SEMS,0666 | IPC_CREAT);//3 semaphores: mutex, leftbound, rightbound
+    int semid = safesemget();//3 semaphores: mutex, leftbound, rightbound
     int shmid = safeshmget();
     union semun semctlarg;
     unsigned short seminit[NUM_SEMS];
@@ -17,11 +18,12 @@ int main(){
     struct common *shared = initializeSharedMemory(shmid, semid);
 
     //make 12 random cars
-    for(int i = 0; i< 12; i++){
+    int i = 0;
+    for(; i< 12; i++){
         if(rand() % 2 == 0) makeRightToLeft(shared);
         else makeLeftToRight(shared);
     }
-    for(int i = 0; i<12; i++) wait(0);
+    for(i = 0; i<12; i++) wait(0);
 
     //cleanup
     semctl(semid, NUM_SEMS, IPC_RMID, 0);
@@ -30,8 +32,8 @@ int main(){
     return EXIT_SUCCESS;
 }
 
-int safesemget(key_t k, int i1, int i2){
-    int returnVar = semget(k,i1,i2);
+int safesemget(){
+    int returnVar = semget(IPC_PRIVATE,NUM_SEMS,0666 | IPC_CREAT);
     if(returnVar < 0) perror("ERROR WHILE GETTING SEMID!");
     return returnVar;
 }

@@ -2,8 +2,6 @@
 #include <time.h>
 #include "main.h"
 #include "car.h"
-#define NANO_SECOND_MULTIPLIER  1000000  // 1 millisecond = 1,000,000 Nanoseconds
-const long INTERVAL_MS = 500 * NANO_SECOND_MULTIPLIER;
 
 void car(int direction, struct common* shared){
 
@@ -141,6 +139,6 @@ void waitOrSignal(int semid, struct sembuf operation){
 
 void cross(){
     struct timespec sleepValue = {0};
-    sleepValue.tv_nsec = INTERVAL_MS;
+    sleepValue.tv_nsec = 500 * 1000000;
     nanosleep(&sleepValue, NULL);
 }
