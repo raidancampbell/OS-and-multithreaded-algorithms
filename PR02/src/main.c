@@ -8,9 +8,9 @@ int main(){
     int shmid = safeshmget();
     union semun semctlarg;
     unsigned short seminit[NUM_SEMS];
-    seminit[0] = 1;//mutex initialized to 1
-    seminit[1] = 0;//leftbound initialized to 0
-    seminit[2] = 0;//rightbound initialized to 0
+    seminit[MUTEX] = 1;//mutex initialized to 1
+    seminit[LEFTBOUND] = 0;//leftbound initialized to 0
+    seminit[RIGHTBOUND] = 0;//rightbound initialized to 0
     semctlarg.array = seminit;
     int semset = semctl(semid, NUM_SEMS, SETALL, semctlarg);//initialize the semaphore array
     if(semset<0) perror("ERROR ON SETTING SEMAPHORE VALUES!");
@@ -18,17 +18,19 @@ int main(){
     struct common *shared = initializeSharedMemory(shmid, semid);
 
     //make 12 random cars
+    printf("Parent:\tgenerating cars");
     int i = 0;
     for(; i< 12; i++){
         if(rand() % 2 == 0) makeRightToLeft(shared);
         else makeLeftToRight(shared);
     }
+    printf("Parent:\tcars generated, waiting for them to finish.");
     for(i = 0; i<12; i++) wait(0);
-
+    printf("Parent:\tcars finished. cleaning up.");
     //cleanup
     semctl(semid, NUM_SEMS, IPC_RMID, 0);
     shmctl(shmid, IPC_RMID, 0);
-
+    printf("Parent:\tcleaned up. Exiting...");
     return EXIT_SUCCESS;
 }
 

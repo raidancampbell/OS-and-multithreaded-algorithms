@@ -16,7 +16,6 @@
 #define LEFTTORIGHT 1
 #define RIGHTTOLEFT 2
 #define NUM_SEMS 3
-#define KEY 32766
 #define WAIT -1
 #define SIGNAL 1
 #define MUTEX 0

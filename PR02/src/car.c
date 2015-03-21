@@ -9,21 +9,20 @@
 #include <sys/shm.h>
 #include <sys/wait.h>
 
-//#include "main.h"
 void car(int direction, struct common* shared){
 
     if(direction != LEFTTORIGHT && direction != RIGHTTOLEFT) perror("ERROR: INVALID ARGUMENT GIVEN TO CAR PROCESS");
 
-    int shmid;//, semid;
+    int shmid;
     shmid = shmget(KEY + 1, 0, 0);
     shared = (struct common *)shmat(shmid, 0, 0);
-    //semid = shared->semkey;
 
     if(direction == LEFTTORIGHT) lefttoright(shared);
     else righttoleft(shared);
 }
 
 void lefttoright(struct common *shared){
+    printf("%d:\tlefttoright car created. Executing", getpid());
     struct sembuf wait_mutex = {MUTEX, WAIT, 0};
     struct sembuf signal_mutex = {MUTEX, SIGNAL, 0};
     struct sembuf wait_leftbound = {LEFTBOUND, WAIT, 0};
@@ -75,7 +74,7 @@ else signal(mutex)
 }
 
 void righttoleft(struct common *shared){
-
+    printf("%d:\trighttoleft car created. Executing", getpid());
     struct sembuf wait_mutex = {MUTEX, WAIT, 0};
     struct sembuf signal_mutex = {MUTEX, SIGNAL, 0};
     struct sembuf wait_rightbound = {RIGHTBOUND, WAIT, 0};

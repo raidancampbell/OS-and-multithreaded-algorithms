@@ -1,12 +1,12 @@
 CC = gcc
 CFLAGS = -g -Wall
 LIBS = # None yet...
-OUTPUT = main car.bin
+OUTPUT = main car
 HEADERS = main.h car.h
 
 all: $(OUTPUT)
 
-car.bin: car.c $(HEADERS)
+car: car.c $(HEADERS)
 	$(CC) $(LIBS) $(CFLAGS) -o $@ $<
 
 main: main.c $(HEADERS)
