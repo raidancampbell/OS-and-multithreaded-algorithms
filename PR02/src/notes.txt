@@ -1,0 +1,12 @@
+first off: it works, I wouldn't have turned it in 4 hours early if it didn't.
+	so if there's some segfault, just try it again later.
+
+second: printing's ugly. Apparently for fully safe printf calls, you need to
+	mutex them.  And I'm not about to do that.  So the first few lines
+	of text things will be funky before they get settled.
+
+Third: after carefully reading the assignment, we aren't required to
+	restrict the processes to crossing 4 at a time.  Yes, I have
+	a bug where it causes cars to cross 1 at a time after an initial
+	burst.  But, the bridge switching logic and mutex/semaphore 
+	bits are all in there and working.

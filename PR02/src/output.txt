@@ -1,0 +1,117 @@
+Script started on Sat Mar 21 19:20:01 2015
+]0;rac158@eecslinab3: ~/PR02/src[01;32mrac158@eecslinab3[00m:[01;34m~/PR02/src[00m$ make
+gcc  -g -Wall -o main car.c main.c
+chmod u+x main
+]0;rac158@eecslinab3: ~/PR02/src[01;32mrac158@eecslinab3[00m:[01;34m~/PR02/src[00m$ ./main
+
+Parent:	generating cars
+Parent:	cars generated, waiting for them to finish.
+
+23009:	righttoleft car created. Executing
+23008:	lefttoright car created. Executing
+
+
+
+
+23009	Cars on bridge: 1	Cars crossed: 0	leftToRightWaiting: 0	rightToLeftWaiting: 0
+23007:	lefttoright car created. Executing23010:	righttoleft car created. Executing23011:	lefttoright car created. Executing
+
+
+23010	Cars on bridge: 2	Cars crossed: 0	leftToRightWaiting: 2	rightToLeftWaiting: 0
+23006:	lefttoright car created. Executing23012:	lefttoright car created. Executing
+
+23013:	righttoleft car created. Executing
+23013	Cars on bridge: 3	Cars crossed: 0	leftToRightWaiting: 5	rightToLeftWaiting: 0
+
+23014:	lefttoright car created. Executing
+23005:	lefttoright car created. Executing
+
+23015:	righttoleft car created. Executing
+23015	Cars on bridge: 4	Cars crossed: 0	leftToRightWaiting: 7	rightToLeftWaiting: 0
+
+23016:	lefttoright car created. Executing
+
+
+23017:	lefttoright car created. Executing
+
+
+
+
+
+
+
+
+23023:	lefttoright car created. Executing
+
+23024:	righttoleft car created. Executing23021:	righttoleft car created. Executing23022:	righttoleft car created. Executing23018:	righttoleft car created. Executing23020:	righttoleft car created. Executing23019:	righttoleft car created. Executing
+
+23004:	righttoleft car created. Executing
+23003:	lefttoright car created. ExecutingPID: 23009 IS CROSSING RIGHT TO LEFT NOW
+PID: 23009 HAS CROSSED NOW
+23022	Cars on bridge: 4	Cars crossed: 1	leftToRightWaiting: 11	rightToLeftWaiting: 6
+PID: 23010 IS CROSSING RIGHT TO LEFT NOW
+PID: 23010 HAS CROSSED NOWPID: 23013 IS CROSSING RIGHT TO LEFT NOW
+PID: 23013 HAS CROSSED NOWPID: 23015 IS CROSSING RIGHT TO LEFT NOW
+PID: 23015 HAS CROSSED NOWPID: 23022 IS CROSSING RIGHT TO LEFT NOW
+PID: 23022 HAS CROSSED NOW
+23022	Direction was right to left, I switched it to left to right
+23008	Cars on bridge: 1	Cars crossed: 0	leftToRightWaiting: 10	rightToLeftWaiting: 6
+PID: 23008 IS CROSSING LEFT TO RIGHT NOW
+PID: 23008 HAS CROSSED NOW
+23007	Cars on bridge: 1	Cars crossed: 1	leftToRightWaiting: 9	rightToLeftWaiting: 6
+PID: 23007 IS CROSSING LEFT TO RIGHT NOW
+PID: 23007 HAS CROSSED NOW
+23011	Cars on bridge: 1	Cars crossed: 2	leftToRightWaiting: 8	rightToLeftWaiting: 6
+PID: 23011 IS CROSSING LEFT TO RIGHT NOW
+PID: 23011 HAS CROSSED NOW
+23006	Cars on bridge: 1	Cars crossed: 3	leftToRightWaiting: 7	rightToLeftWaiting: 6
+PID: 23006 IS CROSSING LEFT TO RIGHT NOW
+PID: 23006 HAS CROSSED NOW
+23012	Cars on bridge: 1	Cars crossed: 4	leftToRightWaiting: 6	rightToLeftWaiting: 6
+PID: 23012 IS CROSSING LEFT TO RIGHT NOW
+PID: 23012 HAS CROSSED NOW
+23012	Direction was left to right, I switched it to right to left
+23018	Cars on bridge: 1	Cars crossed: 0	leftToRightWaiting: 6	rightToLeftWaiting: 5
+PID: 23018 IS CROSSING RIGHT TO LEFT NOW
+PID: 23018 HAS CROSSED NOW
+23020	Cars on bridge: 1	Cars crossed: 1	leftToRightWaiting: 6	rightToLeftWaiting: 4
+PID: 23020 IS CROSSING RIGHT TO LEFT NOW
+PID: 23020 HAS CROSSED NOW
+23021	Cars on bridge: 1	Cars crossed: 2	leftToRightWaiting: 6	rightToLeftWaiting: 3
+PID: 23021 IS CROSSING RIGHT TO LEFT NOW
+PID: 23021 HAS CROSSED NOW
+23019	Cars on bridge: 1	Cars crossed: 3	leftToRightWaiting: 6	rightToLeftWaiting: 2
+PID: 23019 IS CROSSING RIGHT TO LEFT NOW
+PID: 23019 HAS CROSSED NOW
+23024	Cars on bridge: 1	Cars crossed: 4	leftToRightWaiting: 6	rightToLeftWaiting: 1
+PID: 23024 IS CROSSING RIGHT TO LEFT NOW
+PID: 23024 HAS CROSSED NOW
+23024	Direction was right to left, I switched it to left to right
+23014	Cars on bridge: 1	Cars crossed: 0	leftToRightWaiting: 5	rightToLeftWaiting: 1
+PID: 23014 IS CROSSING LEFT TO RIGHT NOW
+PID: 23014 HAS CROSSED NOW
+23005	Cars on bridge: 1	Cars crossed: 1	leftToRightWaiting: 4	rightToLeftWaiting: 1
+PID: 23005 IS CROSSING LEFT TO RIGHT NOW
+PID: 23005 HAS CROSSED NOW
+23016	Cars on bridge: 1	Cars crossed: 2	leftToRightWaiting: 3	rightToLeftWaiting: 1
+PID: 23016 IS CROSSING LEFT TO RIGHT NOW
+PID: 23016 HAS CROSSED NOW
+23017	Cars on bridge: 1	Cars crossed: 3	leftToRightWaiting: 2	rightToLeftWaiting: 1
+PID: 23017 IS CROSSING LEFT TO RIGHT NOW
+PID: 23017 HAS CROSSED NOW
+23023	Cars on bridge: 1	Cars crossed: 4	leftToRightWaiting: 1	rightToLeftWaiting: 1
+PID: 23023 IS CROSSING LEFT TO RIGHT NOW
+PID: 23023 HAS CROSSED NOW
+23023	Direction was left to right, I switched it to right to left
+23004	Cars on bridge: 1	Cars crossed: 0	leftToRightWaiting: 1	rightToLeftWaiting: 0
+PID: 23004 IS CROSSING RIGHT TO LEFT NOW
+PID: 23004 HAS CROSSED NOW
+23004	Direction was right to left, I switched it to left to right
+23003	Cars on bridge: 1	Cars crossed: 0	leftToRightWaiting: 0	rightToLeftWaiting: 0
+PID: 23003 IS CROSSING LEFT TO RIGHT NOW
+PID: 23003 HAS CROSSED NOW
+Parent:	cars finished. cleaning up.
+Parent:	cleaned up. Exiting...
+]0;rac158@eecslinab3: ~/PR02/src[01;32mrac158@eecslinab3[00m:[01;34m~/PR02/src[00m$ 
+]0;rac158@eecslinab3: ~/PR02/src[01;32mrac158@eecslinab3[00m:[01;34m~/PR02/src[00m$ exit
+Script done on Sat Mar 21 19:20:26 2015

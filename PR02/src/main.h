@@ -46,6 +46,4 @@ int main();
 void makeLeftToRight(struct common*);
 void makeRightToLeft(struct common*);
 struct common * initializeSharedMemory(int, int);
-
-
 #endif
