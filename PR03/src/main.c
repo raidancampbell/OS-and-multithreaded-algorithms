@@ -25,12 +25,12 @@
 //Pointers to methods
 void *depositorThread(void *threadId);
 void *withdrawerThread(void *threadId);
-
+int randomVal();
 void my_sleep(int limit);
 
 //POSIX Semaphores and shared variables
-sem_t wrt, mutex;
-int readcount = 0;
+sem_t dep, mutex;
+int balance = 0;
 
 struct threadInfo {int threadId; };
 
@@ -52,7 +52,7 @@ int main(void)
     pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
 
     //Initializing the WRT and MUTEX semaphores
-    sem_init(&wrt, 0 , 1);
+    sem_init(&dep, 0 , 1);
     sem_init(&mutex, 0, 1);
 
     //Spawn Readers
@@ -112,9 +112,14 @@ void *depositorThread(void *threadId)
 
     //Depositor Entry
     sem_wait(&mutex);
-    readcount++;
 
-    if(readcount == 1) sem_wait(&wrt);
+    int withdrawalAmount = randomVal();
+    while (balance < withdrawalAmount){//this is probably way wrong
+        sem_wait(&dep);
+    }
+    balance-=withdrawalAmount;
+
+    if(balance == 1) sem_wait(&dep);
     sem_post(&mutex);
 
     //Reader CS
@@ -124,10 +129,10 @@ void *depositorThread(void *threadId)
 
     //Depositor Cleanup
     sem_wait(&mutex);
-    readcount--;
-    if(readcount == 0)
+    balance--;
+    if(balance == 0)
     {
-        sem_post(&wrt);
+        sem_post(&dep);
     }
     sem_post(&mutex);
     pthread_exit(NULL);
@@ -143,7 +148,7 @@ void *withdrawerThread(void *threadId)
     my_sleep(500); //Simulate being idle for 1-500ms
 
     //Withdrawer Entry
-    sem_wait(&wrt);
+    sem_wait(&dep);
 
     //Withdrawer CS
     printf("Withdrawer %d enters CS\n", id);
@@ -151,7 +156,7 @@ void *withdrawerThread(void *threadId)
     printf("Withdrawer %d exits CS\n", id);
 
     //Withdrawer Cleanup
-    sem_post(&wrt);
+    sem_post(&dep);
     pthread_exit(NULL);
 }
 
@@ -168,4 +173,8 @@ void my_sleep(int limit)
         perror("Nanosleep");
         exit(EXIT_FAILURE);
     }
+}
+
+int randomVal(){
+    return rand()%1000;
 }
