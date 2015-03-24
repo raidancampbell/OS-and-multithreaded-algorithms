@@ -19,8 +19,8 @@
 #include <semaphore.h>
 #include "LL.h"
 
-#define DEPOSITOR_COUNT 10
-#define WITHDRAWER_COUNT 5
+#define DEPOSITOR_COUNT 500
+#define WITHDRAWER_COUNT 500
 #define RAND_SEED 2114
 
 //Pointers to methods
@@ -41,8 +41,7 @@ struct threadInfo {int threadId; };
 struct threadInfo depositorIDs[DEPOSITOR_COUNT];
 struct threadInfo withdrawerIDs[WITHDRAWER_COUNT];
 
-int main(void)
-{
+int main(void) {
     pthread_t depositors[DEPOSITOR_COUNT];
     pthread_t withdrawers[WITHDRAWER_COUNT];
     pthread_attr_t attr;
@@ -56,54 +55,47 @@ int main(void)
     pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
 
     //Initializing the WRT and MUTEX semaphores
-    sem_init(&wlist, 0 , 0);
+    sem_init(&wlist, 0, 0);
     sem_init(&mutex, 0, 1);
 
     //Spawn Readers
     int i;
-    for(i = 0; i < DEPOSITOR_COUNT; i++)
-    {
+    for(i = 0; i < DEPOSITOR_COUNT; i++) {
         depositorIDs[i].threadId = i;
         int result = pthread_create(&depositors[i], &attr, depositorThread, (void *) &depositorIDs[i]);
-        if(result == -1)
-        {
+        if(result == -1) {
             perror("Thread Creation: Depositor");
             exit(EXIT_FAILURE);
         }
     }
 
     //Spawn Writers
-    for(i = 0; i < WITHDRAWER_COUNT; i++)
-    {
+    for(i = 0; i < WITHDRAWER_COUNT; i++) {
         withdrawerIDs[i].threadId = i;
         int result = pthread_create(&withdrawers[i], &attr, withdrawerThread, (void *) &withdrawerIDs[i]);
-        if(result == -1)
-        {
+        if(result == -1) {
             perror("Thread Creation: Withdrawer");
             exit(EXIT_FAILURE);
         }
     }
 
     //Wait for all the threads to finish
-    for(i = 0; i < DEPOSITOR_COUNT; i++)
-    {
+    for(i = 0; i < DEPOSITOR_COUNT; i++) {
         int result = pthread_join(depositors[i], &status);
-        if(result == -1)
-        {
+        if(result == -1) {
             perror("Thread Join: Depositor");
             exit(EXIT_FAILURE);
         }
     }
 
-    for(i = 0; i < WITHDRAWER_COUNT; i++)
-    {
+    for(i = 0; i < WITHDRAWER_COUNT; i++) {
         int result = pthread_join(withdrawers[i], &status);
-        if(result == -1)
-        {
+        if(result == -1) {
             perror("Thread Join: Withdrawer");
             exit(EXIT_FAILURE);
         }
     }
+	return EXIT_SUCCESS;
 }
 
 void *depositorThread(void *threadId)
@@ -120,9 +112,9 @@ if (wcount = 0) {
     signal (wlist); // Deposit has taken place.
 }
     */
-    struct threadInfo * info;
-    info = (struct threadInfo *) threadId;
-    int id = info->threadId;
+    //struct threadInfo * info;
+    //info = (struct threadInfo *) threadId;
+    //int id = info->threadId;
 
     my_sleep(100);	//Simulate being idle for 1-100ms
 
@@ -134,21 +126,6 @@ if (wcount = 0) {
     if(wcount==0) sem_post(&mutex);
     else if (firstRequestAmount(list) > balance) sem_post(&mutex);
     else sem_post(&wlist);
-
-
-//    if(balance == 1) sem_wait(&wlist);
-//    sem_post(&mutex);
-//    //Reader CS
-//    printf("Depositor %d enters CS\n", id);
-//    my_sleep(10); //Simulates a read operation taking 1-10ms
-//    printf("Depositor %d exits CS\n", id);
-//    //Depositor Cleanup
-//    sem_wait(&mutex);
-//    balance--;
-//    if(balance == 0) {
-//        sem_post(&wlist);
-//    }
-//    sem_post(&mutex);
 
     pthread_exit(NULL);
 }
@@ -177,10 +154,8 @@ if (wcount = 0 and balance > withdraw){
     }
 } // Withdrawal is completed.
     */
-    struct threadInfo * info;
-    info = (struct threadInfo *) threadId;
-    int id = info->threadId;
-    //Withdrawer Entry
+
+
     sem_wait(&mutex);
     int withdrawAmount = randomVal();
     if(wcount==0 && balance>withdrawAmount){
@@ -193,28 +168,19 @@ if (wcount = 0 and balance > withdraw){
         balance -= firstRequestAmount(list);
         deleteFirstRequest(list);
         wcount--;
-        if(firstRequestAmount(list)<= balance){
+        if(firstRequestAmount(list)<= balance) {
             sem_post(&wlist);
         } else {
             sem_post(&mutex);
         }
     }
 
-
-//    //Withdrawer CS
-//    printf("Withdrawer %d enters CS\n", id);
-//    my_sleep(50); //Simulate a write operation taking 1-50ms
-//    printf("Withdrawer %d exits CS\n", id);
-//
-//    //Withdrawer Cleanup
-//    sem_post(&wlist);
     pthread_exit(NULL);
 }
 
 
 //Puts the calling thread to sleep to simulate both random start times and random workloads
-void my_sleep(int limit)
-{
+void my_sleep(int limit) {
     struct timespec time_ns;
     int duration = (int) random() % limit + 1;
     time_ns.tv_sec = 0;
@@ -226,6 +192,6 @@ void my_sleep(int limit)
     }
 }
 
-int randomVal(){
+int randomVal() {
     return rand()%1000;
 }
