@@ -6,15 +6,15 @@
 #define _ASN1_LL_H_
 #include<stdbool.h>
 
-struct test_struct {
+struct node {
     int val;
-    struct test_struct *next;
+    struct node *next;
 };
 
-struct test_struct* create_list(int);
-struct test_struct* add_to_list(struct test_struct *,int, bool);
-void deleteFirstRequest(struct test_struct*);
-struct test_struct* getEnd(struct test_struct*);
-int firstRequestAmount(struct test_struct*);
+struct node * create_list(int);
+struct node * add_to_list(struct node *,int, bool);
+struct node * deleteFirstRequest(struct node *);
+struct node * getEnd(struct node *);
+int firstRequestAmount(struct node *);
 
 #endif //_ASN1_LL_H_
