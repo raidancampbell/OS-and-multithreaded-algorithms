@@ -17,6 +17,7 @@
 #include <time.h>
 #include <pthread.h>
 #include <semaphore.h>
+#include "LL.h"
 
 #define DEPOSITOR_COUNT 10
 #define WITHDRAWER_COUNT 5
@@ -30,7 +31,9 @@ void my_sleep(int limit);
 
 //POSIX Semaphores and shared variables
 sem_t dep, mutex;
-int balance = 0;
+int balance = 500;
+struct test_struct *list = NULL;
+
 
 struct threadInfo {int threadId; };
 
@@ -52,7 +55,7 @@ int main(void)
     pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
 
     //Initializing the WRT and MUTEX semaphores
-    sem_init(&dep, 0 , 1);
+    sem_init(&dep, 0 , 0);
     sem_init(&mutex, 0, 1);
 
     //Spawn Readers
