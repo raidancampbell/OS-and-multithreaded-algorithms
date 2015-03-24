@@ -1,6 +1,14 @@
-//
-// Created by Aidan Campbell on 3/23/15.
-//
+//============================================================================
+//          THE CODE BELOW WAS HEAVILY RECYCLED FROM THIS SOURCE:
+// Name        : posixExample.c
+// Author      : Daniel M. Savel
+// CaseID      : dxs221
+// Description : POSIX Examples, POSIX Threads and POSIX Semaphores
+//		 Simple Threaded Readers-Writers Simulation
+// Compile CMD : gcc posixExample.c -lpthread
+//============================================================================
+
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/types.h>
@@ -9,15 +17,14 @@
 #include <time.h>
 #include <pthread.h>
 #include <semaphore.h>
-#include "main.h"
 
-#define READER_COUNT 10
-#define WRITER_COUNT 5
+#define DEPOSITOR_COUNT 10
+#define WITHDRAWER_COUNT 5
 #define RAND_SEED 2114
 
 //Pointers to methods
-void *readerThread(void *threadId);
-void *writerThread(void *threadId);
+void *depositorThread(void *threadId);
+void *withdrawerThread(void *threadId);
 
 void my_sleep(int limit);
 
@@ -25,18 +32,15 @@ void my_sleep(int limit);
 sem_t wrt, mutex;
 int readcount = 0;
 
-struct threadInfo
-{
-    int threadId;
-};
+struct threadInfo {int threadId; };
 
-struct threadInfo readerIDs[READER_COUNT];
-struct threadInfo writerIDs[WRITER_COUNT];
+struct threadInfo depositorIDs[DEPOSITOR_COUNT];
+struct threadInfo withdrawerIDs[WITHDRAWER_COUNT];
 
 int main(void)
 {
-    pthread_t readers[READER_COUNT];
-    pthread_t writers[WRITER_COUNT];
+    pthread_t depositors[DEPOSITOR_COUNT];
+    pthread_t withdrawers[WITHDRAWER_COUNT];
     pthread_attr_t attr;
     void *status;
 
@@ -53,52 +57,52 @@ int main(void)
 
     //Spawn Readers
     int i;
-    for(i = 0; i < READER_COUNT; i++)
+    for(i = 0; i < DEPOSITOR_COUNT; i++)
     {
-        readerIDs[i].threadId = i;
-        int result = pthread_create(&readers[i], &attr, readerThread, (void*) &readerIDs[i]);
+        depositorIDs[i].threadId = i;
+        int result = pthread_create(&depositors[i], &attr, depositorThread, (void *) &depositorIDs[i]);
         if(result == -1)
         {
-            perror("Thread Creation: Reader");
+            perror("Thread Creation: Depositor");
             exit(EXIT_FAILURE);
         }
     }
 
     //Spawn Writers
-    for(i = 0; i < WRITER_COUNT; i++)
+    for(i = 0; i < WITHDRAWER_COUNT; i++)
     {
-        writerIDs[i].threadId = i;
-        int result = pthread_create(&writers[i], &attr, writerThread, (void*) &writerIDs[i]);
+        withdrawerIDs[i].threadId = i;
+        int result = pthread_create(&withdrawers[i], &attr, withdrawerThread, (void *) &withdrawerIDs[i]);
         if(result == -1)
         {
-            perror("Thread Creation: Writer");
+            perror("Thread Creation: Withdrawer");
             exit(EXIT_FAILURE);
         }
     }
 
     //Wait for all the threads to finish
-    for(i = 0; i < READER_COUNT; i++)
+    for(i = 0; i < DEPOSITOR_COUNT; i++)
     {
-        int result = pthread_join(readers[i], &status);
+        int result = pthread_join(depositors[i], &status);
         if(result == -1)
         {
-            perror("Thread Join: Reader");
+            perror("Thread Join: Depositor");
             exit(EXIT_FAILURE);
         }
     }
 
-    for(i = 0; i < WRITER_COUNT; i++)
+    for(i = 0; i < WITHDRAWER_COUNT; i++)
     {
-        int result = pthread_join(writers[i], &status);
+        int result = pthread_join(withdrawers[i], &status);
         if(result == -1)
         {
-            perror("Thread Join: Writer");
+            perror("Thread Join: Withdrawer");
             exit(EXIT_FAILURE);
         }
     }
 }
 
-void *readerThread(void *threadId)
+void *depositorThread(void *threadId)
 {
     struct threadInfo * info;
     info = (struct threadInfo *) threadId;
@@ -106,21 +110,19 @@ void *readerThread(void *threadId)
 
     my_sleep(100);	//Simulate being idle for 1-100ms
 
-    //Reader Entry
+    //Depositor Entry
     sem_wait(&mutex);
     readcount++;
-    if(readcount == 1)
-    {
-        sem_wait(&wrt);
-    }
+
+    if(readcount == 1) sem_wait(&wrt);
     sem_post(&mutex);
 
     //Reader CS
-    printf("Reader %d enters CS\n", id);
+    printf("Depositor %d enters CS\n", id);
     my_sleep(10); //Simulates a read operation taking 1-10ms
-    printf("Reader %d exits CS\n", id);
+    printf("Depositor %d exits CS\n", id);
 
-    //Reader Cleanup
+    //Depositor Cleanup
     sem_wait(&mutex);
     readcount--;
     if(readcount == 0)
@@ -132,7 +134,7 @@ void *readerThread(void *threadId)
 }
 
 
-void *writerThread(void *threadId)
+void *withdrawerThread(void *threadId)
 {
     struct threadInfo * info;
     info = (struct threadInfo *) threadId;
@@ -140,15 +142,15 @@ void *writerThread(void *threadId)
 
     my_sleep(500); //Simulate being idle for 1-500ms
 
-    //Writer Entry
+    //Withdrawer Entry
     sem_wait(&wrt);
 
-    //Writer CS
-    printf("Writer %d enters CS\n", id);
+    //Withdrawer CS
+    printf("Withdrawer %d enters CS\n", id);
     my_sleep(50); //Simulate a write operation taking 1-50ms
-    printf("Writer %d exits CS\n", id);
+    printf("Withdrawer %d exits CS\n", id);
 
-    //Writer Cleanup
+    //Withdrawer Cleanup
     sem_post(&wrt);
     pthread_exit(NULL);
 }
@@ -158,24 +160,12 @@ void *writerThread(void *threadId)
 void my_sleep(int limit)
 {
     struct timespec time_ns;
-    int duration = random() % limit + 1;
+    int duration = (int) random() % limit + 1;
     time_ns.tv_sec = 0;
     time_ns.tv_nsec = duration * 1000000;
     int result = nanosleep(&time_ns, NULL);
-    if (result != 0)
-    {
+    if (result != 0) {
         perror("Nanosleep");
         exit(EXIT_FAILURE);
     }
-}
-
-//returns either DEPOSIT or WITHDRAWAL, useful for random generations
-int randomType(){
-    if(rand() % 2 == 0) return DEPOSIT;
-    else return WITHDRAWAL;
-}
-
-//returns a random value between 0 and 1000, useful for random generations
-int randomAmount(){
-    return rand() % 1000;
 }
