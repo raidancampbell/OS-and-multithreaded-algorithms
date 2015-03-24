@@ -63,7 +63,7 @@ int main(void) {
     for(i = 0; i < DEPOSITOR_COUNT; i++) {
         depositorIDs[i].threadId = i;
         int result = pthread_create(&depositors[i], &attr, depositorThread, (void *) &depositorIDs[i]);
-        if(result == -1) {
+        if(result < 0) {
             perror("Thread Creation: Depositor");
             exit(EXIT_FAILURE);
         }
@@ -73,7 +73,7 @@ int main(void) {
     for(i = 0; i < WITHDRAWER_COUNT; i++) {
         withdrawerIDs[i].threadId = i;
         int result = pthread_create(&withdrawers[i], &attr, withdrawerThread, (void *) &withdrawerIDs[i]);
-        if(result == -1) {
+        if(result < 0) {
             perror("Thread Creation: Withdrawer");
             exit(EXIT_FAILURE);
         }
@@ -82,7 +82,7 @@ int main(void) {
     //Wait for all the threads to finish
     for(i = 0; i < DEPOSITOR_COUNT; i++) {
         int result = pthread_join(depositors[i], &status);
-        if(result == -1) {
+        if(result < 0) {
             perror("Thread Join: Depositor");
             exit(EXIT_FAILURE);
         }
@@ -90,7 +90,7 @@ int main(void) {
 
     for(i = 0; i < WITHDRAWER_COUNT; i++) {
         int result = pthread_join(withdrawers[i], &status);
-        if(result == -1) {
+        if(result < 0) {
             perror("Thread Join: Withdrawer");
             exit(EXIT_FAILURE);
         }
@@ -112,9 +112,6 @@ if (wcount = 0) {
     signal (wlist); // Deposit has taken place.
 }
     */
-    //struct threadInfo * info;
-    //info = (struct threadInfo *) threadId;
-    //int id = info->threadId;
 
     my_sleep(100);	//Simulate being idle for 1-100ms
 
@@ -122,9 +119,12 @@ if (wcount = 0) {
     sem_wait(&mutex);
     int depositAmount = randomVal();
     balance += depositAmount;
-
+    printf("\nBalance: %d\t\tPost deposit of: %d", balance, depositAmount);
     if(wcount==0) sem_post(&mutex);
-    else if (firstRequestAmount(list) > balance) sem_post(&mutex);
+    else if (firstRequestAmount(list) > balance) {
+        printf("\nThat deposit allowed the waiting withdrawal of: %d to proceed", firstRequestAmount(list));
+        sem_post(&mutex);
+    }
     else sem_post(&wlist);
 
     pthread_exit(NULL);
@@ -160,6 +160,7 @@ if (wcount = 0 and balance > withdraw){
     int withdrawAmount = randomVal();
     if(wcount==0 && balance>withdrawAmount){
         balance -= withdrawAmount;
+        printf("\nBalance: %d\t\tPost withdrawal of: %d", balance, withdrawAmount);
     } else{
         add_to_list(list, withdrawAmount, true);
         wcount++;
@@ -176,20 +177,6 @@ if (wcount = 0 and balance > withdraw){
     }
 
     pthread_exit(NULL);
-}
-
-
-//Puts the calling thread to sleep to simulate both random start times and random workloads
-void my_sleep(int limit) {
-    struct timespec time_ns;
-    int duration = (int) random() % limit + 1;
-    time_ns.tv_sec = 0;
-    time_ns.tv_nsec = duration * 1000000;
-    int result = nanosleep(&time_ns, NULL);
-    if (result != 0) {
-        perror("Nanosleep");
-        exit(EXIT_FAILURE);
-    }
 }
 
 int randomVal() {
