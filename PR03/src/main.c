@@ -18,6 +18,7 @@
 #include <pthread.h>
 #include <semaphore.h>
 #include<stdbool.h>
+
 struct node {
     int val;
     struct node *next;
@@ -26,6 +27,8 @@ struct node {
 //#include "LL.h"
 
 #define RAND_SEED 2114
+#define SIGNAL sem_post
+#define WAIT sem_wait
 
 //Pointers to methods
 void *depositorThread(void *threadId);
@@ -43,7 +46,7 @@ int wcount = 0;
 struct node *head = NULL;
 struct node *curr = NULL;
 
-struct threadInfo {int threadId; };
+struct threadInfo {int threadId;};
 
 int main(void) {
     int depositorCount = randomVal()%50;
@@ -126,18 +129,19 @@ if (wcount = 0) {
     */
 
     //Depositor Entry
-    sem_wait(&mutex);
     int depositAmount = randomVal();
-    balance += depositAmount;
+    WAIT(&mutex);
+    balance = balance + depositAmount;
     printf("\nBalance: %d\t\tPost deposit of: %d", balance, depositAmount);
     if(wcount==0) {
-        sem_post(&mutex);
+        SIGNAL(&mutex);
+    } else if (head->val > balance) {
+        printf("\nThat deposit allowed the waiting withdrawal of: %d to proceed", head->val);
+        SIGNAL(&mutex);
     } else {
-        if (head->val > balance) {
-            printf("\nThat deposit allowed the waiting withdrawal of: %d to proceed", head->val);
-            sem_post(&mutex);
-        } else sem_post(&wlist);
+        SIGNAL(&wlist);
     }
+
 
     pthread_exit(NULL);
 }
@@ -167,26 +171,26 @@ if (wcount = 0 and balance > withdraw){
 } // Withdrawal is completed.
     */
 
-
-    sem_wait(&mutex);
     int withdrawAmount = randomVal();
+    WAIT(&mutex);
     if(wcount==0 && balance>withdrawAmount){
-        balance -= withdrawAmount;
+        balance = balance - withdrawAmount;
         printf("\nBalance: %d\t\tPost withdrawal of: %d", balance, withdrawAmount);
+        SIGNAL(&mutex);
     } else{
         printf("\nBalance: %d\t\tPre overdraw/wait of: %d", balance, withdrawAmount);
-        add_to_list(withdrawAmount, true);
-        wcount++;
-        sem_post(&mutex);
-        sem_wait(&wlist);
-        balance -= head->val;
+        add_to_list(withdrawAmount, true); //adds withdrawAmount to the end of the list
+        wcount = wcount + 1;
+        SIGNAL(&mutex);
+        WAIT(&wlist);
+        balance = balance - head->val;
         printf("\nBalance: %d\t\tPost delayed withdrawal of: %d", balance, withdrawAmount);
         remove_head();
         wcount--;
-        if(wcount != 0 && head->val<= balance) {
-            sem_post(&wlist);
+        if(wcount != 0 && head != NULL && head->val <= balance) {
+            SIGNAL(&wlist);
         } else {
-            sem_post(&mutex);
+            SIGNAL(&mutex);
         }
     }
     pthread_exit(NULL);
@@ -196,23 +200,20 @@ int randomVal() {
     return rand()%1000;
 }
 
-
-
-
 struct node * create_list(int val)
 {
     printf("\n creating list with headnode as [%d]\n",val);
     struct node *ptr = (struct node *)malloc(sizeof(struct node));
-    if(NULL == ptr)
-    {
+    if(NULL == ptr) {
         printf("\n Node creation failed \n");
         return NULL;
     }
     ptr->val = val;
     ptr->next = NULL;
 
-    head = curr = ptr;
-    return ptr;
+    head = ptr;
+    curr = ptr;
+    return head;
 }
 
 struct node * add_to_list(int val, bool add_to_end)
@@ -220,11 +221,13 @@ struct node * add_to_list(int val, bool add_to_end)
     if(NULL == head) {
         return (create_list(val));
     }
+    if(NULL == curr) {
+        perror("CURR WAS NULL!");
+        curr = head;
+    }
 
-    if(add_to_end)
-        printf("\n Adding node to end of list with value [%d]\n",val);
-    else
-        printf("\n Adding node to beginning of list with value [%d]\n",val);
+    if(add_to_end)  printf("\n Adding node to end of list with value [%d]\n",val);
+    else            printf("\n Adding node to beginning of list with value [%d]\n",val);
 
     struct node *ptr = (struct node *)malloc(sizeof(struct node));
     if(NULL == ptr) {
@@ -235,6 +238,10 @@ struct node * add_to_list(int val, bool add_to_end)
     ptr->next = NULL;
 
     if(add_to_end) {
+        if(curr == NULL){
+            perror("CURR WAS NULL!");
+            curr = head;
+        }
         curr->next = ptr;
         curr = ptr;
     }
@@ -247,7 +254,7 @@ struct node * add_to_list(int val, bool add_to_end)
 
 int remove_head()
 {
-    if(curr == NULL) return -1;
-    curr = curr->next;
+    if(head == NULL) return -1;
+    head = head->next;
     return 0;
 }

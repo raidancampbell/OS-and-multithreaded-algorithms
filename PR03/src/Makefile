@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -g -Wall
 LIBS = -pthread
-SOURCE = main.c LL.c
+SOURCE = main.c
 OUTPUT = main
 
 all: $(SOURCE)
