@@ -61,8 +61,12 @@ struct test_struct* getEnd(struct test_struct *list){
     return list;
 }
 
-void DeleteFirstRequest(struct test_struct *given){
+void deleteFirstRequest(struct test_struct *given){
     given = given->next;
+}
+
+int firstRequestAmount(struct test_struct *given){
+    return given->val;
 }
 
 int main(void) {

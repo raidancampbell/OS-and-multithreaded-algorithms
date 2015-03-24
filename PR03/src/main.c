@@ -30,8 +30,9 @@ int randomVal();
 void my_sleep(int limit);
 
 //POSIX Semaphores and shared variables
-sem_t dep, mutex;
+sem_t wlist, mutex;
 int balance = 500;
+int wcount = 0;
 struct test_struct *list = NULL;
 
 
@@ -55,7 +56,7 @@ int main(void)
     pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
 
     //Initializing the WRT and MUTEX semaphores
-    sem_init(&dep, 0 , 0);
+    sem_init(&wlist, 0 , 0);
     sem_init(&mutex, 0, 1);
 
     //Spawn Readers
@@ -107,6 +108,18 @@ int main(void)
 
 void *depositorThread(void *threadId)
 {
+    /*
+Depositing Customer:// Assume that the local variable deposit (int) contains the amount to be deposited.
+wait (mutex);
+balance := balance + deposit;
+if (wcount = 0) {
+    signal (mutex)
+} else if (FirstRequestAmount (LIST) > balance){
+    signal (mutex)
+} else {
+    signal (wlist); // Deposit has taken place.
+}
+    */
     struct threadInfo * info;
     info = (struct threadInfo *) threadId;
     int id = info->threadId;
@@ -115,51 +128,86 @@ void *depositorThread(void *threadId)
 
     //Depositor Entry
     sem_wait(&mutex);
+    int depositAmount = randomVal();
+    balance += depositAmount;
 
-    int withdrawalAmount = randomVal();
-    while (balance < withdrawalAmount){//this is probably way wrong
-        sem_wait(&dep);
-    }
-    balance-=withdrawalAmount;
+    if(wcount==0) sem_post(&mutex);
+    else if (firstRequestAmount(list) > balance) sem_post(&mutex);
+    else sem_post(&wlist);
 
-    if(balance == 1) sem_wait(&dep);
-    sem_post(&mutex);
 
-    //Reader CS
-    printf("Depositor %d enters CS\n", id);
-    my_sleep(10); //Simulates a read operation taking 1-10ms
-    printf("Depositor %d exits CS\n", id);
+//    if(balance == 1) sem_wait(&wlist);
+//    sem_post(&mutex);
+//    //Reader CS
+//    printf("Depositor %d enters CS\n", id);
+//    my_sleep(10); //Simulates a read operation taking 1-10ms
+//    printf("Depositor %d exits CS\n", id);
+//    //Depositor Cleanup
+//    sem_wait(&mutex);
+//    balance--;
+//    if(balance == 0) {
+//        sem_post(&wlist);
+//    }
+//    sem_post(&mutex);
 
-    //Depositor Cleanup
-    sem_wait(&mutex);
-    balance--;
-    if(balance == 0)
-    {
-        sem_post(&dep);
-    }
-    sem_post(&mutex);
     pthread_exit(NULL);
 }
 
 
 void *withdrawerThread(void *threadId)
 {
+    /*
+Withdrawing Customer:// Assume that the local variable withdraw (int) contains the amount to be withdrawn.
+wait (mutex);
+if (wcount = 0 and balance > withdraw){
+    balance := balance – withdraw;
+    signal (mutex);
+} else { // Either other withdrawal requests are waiting or not enough balance.
+    AddEndOf List (LIST, withdraw);
+    wcount := wcount + 1;
+    signal (mutex);
+    wait (wlist); // Start waiting for a deposit
+    balance := balance – FirstRequestAmount (LIST); // Withdraw.
+    DeleteFirstRequest (LIST); // Remove own request from the waiting list.
+    wcount := wcount – 1;
+    if (FirstRequestAmount (LIST) ≤ balance) {
+        signal (wlist)
+    } else {
+        signal (mutex);
+    }
+} // Withdrawal is completed.
+    */
     struct threadInfo * info;
     info = (struct threadInfo *) threadId;
     int id = info->threadId;
-
-    my_sleep(500); //Simulate being idle for 1-500ms
-
     //Withdrawer Entry
-    sem_wait(&dep);
+    sem_wait(&mutex);
+    int withdrawAmount = randomVal();
+    if(wcount==0 && balance>withdrawAmount){
+        balance -= withdrawAmount;
+    } else{
+        add_to_list(list, withdrawAmount, true);
+        wcount++;
+        sem_post(&mutex);
+        sem_wait(&wlist);
+        balance -= firstRequestAmount(list);
+        deleteFirstRequest(list);
+        wcount--;
+        if(firstRequestAmount(list)<= balance){
+            sem_post(&wlist);
+        } else {
+            sem_post(&mutex);
+        }
+    }
 
-    //Withdrawer CS
-    printf("Withdrawer %d enters CS\n", id);
-    my_sleep(50); //Simulate a write operation taking 1-50ms
-    printf("Withdrawer %d exits CS\n", id);
 
-    //Withdrawer Cleanup
-    sem_post(&dep);
+//    //Withdrawer CS
+//    printf("Withdrawer %d enters CS\n", id);
+//    my_sleep(50); //Simulate a write operation taking 1-50ms
+//    printf("Withdrawer %d exits CS\n", id);
+//
+//    //Withdrawer Cleanup
+//    sem_post(&wlist);
     pthread_exit(NULL);
 }
 

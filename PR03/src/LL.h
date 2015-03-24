@@ -13,7 +13,8 @@ struct test_struct {
 
 struct test_struct* create_list(int);
 struct test_struct* add_to_list(struct test_struct *,int, bool);
-void DeleteFirstRequest(struct test_struct *);
+void deleteFirstRequest(struct test_struct*);
 struct test_struct* getEnd(struct test_struct*);
+int firstRequestAmount(struct test_struct*);
 
 #endif //_ASN1_LL_H_
