@@ -17,11 +17,12 @@
 #include <time.h>
 #include <pthread.h>
 #include <semaphore.h>
-#include<stdbool.h>
+#include <stdbool.h>
 
 struct node {
     int val;
     struct node *next;
+    int threadID;
 };
 
 //#include "LL.h"
@@ -34,8 +35,8 @@ struct node {
 void *depositorThread(void *threadId);
 void *withdrawerThread(void *threadId);
 int randomVal();
-struct node * create_list(int);
-struct node * add_to_list(int, bool);
+struct node * create_list(int, int);
+struct node * add_to_list(int,int, bool);
 int remove_head();
 
 //POSIX Semaphores and shared variables
@@ -43,15 +44,16 @@ sem_t wlist, mutex;
 
 int balance = 500;//initial starting balance
 int wcount = 0;
+int threadIWantToWake = 0;
 struct node *head = NULL;
 struct node *curr = NULL;
 
 struct threadInfo {int threadId;};
 
 int main(void) {
-    int depositorCount = randomVal()%50;
+    int depositorCount = randomVal()%7;
     int depositorsRemaining = depositorCount;
-    int withdrawerCount = randomVal()%50;
+    int withdrawerCount = randomVal()%10;
     int withdrawerRemaining = withdrawerCount;
     printf("Counts initialized. %d Depositors\t\t%d Withdrawers", depositorCount, withdrawerCount);
     struct threadInfo depositorIDs[depositorCount];
@@ -71,10 +73,10 @@ int main(void) {
     //Initializing the WRT and MUTEX semaphores
     sem_init(&wlist, 0, 0);
     sem_init(&mutex, 0, 1);
-
     //Spawn threads
     while(depositorsRemaining+withdrawerRemaining >0){
-        if(rand()%2==0 && depositorsRemaining>0){
+        int rnd = rand()%2;
+        if(rnd==0 && depositorsRemaining>0){
             depositorsRemaining--;
             int i = depositorCount - depositorsRemaining;
             depositorIDs[i].threadId = i;
@@ -83,7 +85,7 @@ int main(void) {
                 perror("Thread Creation: Depositor");
                 exit(EXIT_FAILURE);
             }
-        } else{
+        } else if(rnd==1 && withdrawerRemaining>0){
             withdrawerRemaining--;
             int i = withdrawerCount = withdrawerRemaining;
             int result = pthread_create(&withdrawers[i], &attr, withdrawerThread, (void *) &withdrawerIDs[i]);
@@ -115,6 +117,9 @@ int main(void) {
 
 void *depositorThread(void *threadId)
 {
+    struct threadInfo * info;
+    info = (struct threadInfo *) threadId;
+    int id = info->threadId;
     /*
 Depositing Customer:// Assume that the local variable deposit (int) contains the amount to be deposited.
 wait (mutex);
@@ -130,12 +135,15 @@ if (wcount = 0) {
 
     //Depositor Entry
     int depositAmount = randomVal();
+    //printf("\nDepositor ID: %d about to wait mutex", id);
     WAIT(&mutex);
+    //printf("\nDepositor ID: %d gained access to mutex", id);
     balance = balance + depositAmount;
-    printf("\nBalance: %d\t\tPost deposit of: %d", balance, depositAmount);
+    printf("\nDepositor: %d\tBalance: %d\t\tPost deposit of: %d", id, balance, depositAmount);
     if(wcount==0) {
         SIGNAL(&mutex);
-    } else if (head->val > balance) {
+    } else if (head != NULL && head->val > balance) {
+        threadIWantToWake = head->threadID;
         printf("\nThat deposit allowed the waiting withdrawal of: %d to proceed", head->val);
         SIGNAL(&mutex);
     } else {
@@ -149,6 +157,9 @@ if (wcount = 0) {
 
 void *withdrawerThread(void *threadId)
 {
+    struct threadInfo * info;
+    info = (struct threadInfo *) threadId;
+    int id = info->threadId;
     /*
 Withdrawing Customer:// Assume that the local variable withdraw (int) contains the amount to be withdrawn.
 wait (mutex);
@@ -170,21 +181,34 @@ if (wcount = 0 and balance > withdraw){
     }
 } // Withdrawal is completed.
     */
-
-    int withdrawAmount = randomVal();
+    int withdrawAmount = randomVal()%700;//slightly less than deposit amount, to help things move forward
+    if(withdrawAmount < 0){
+        perror("WITHDRAW AMOUNT LESS THAN 0");
+        exit(EXIT_FAILURE);
+    }
+    //printf("\nWithdrawer ID: %d about to wait mutex", id);
     WAIT(&mutex);
+    //printf("\nDepositor ID: %d gained access to mutex", id);
     if(wcount==0 && balance>withdrawAmount){
         balance = balance - withdrawAmount;
-        printf("\nBalance: %d\t\tPost withdrawal of: %d", balance, withdrawAmount);
+        if(balance<0){
+            perror("A Balance of less than 0 was created!");
+        }
+        printf("\nWithdrawer: %d\t\tBalance: %d\t\tPost withdrawal of: %d",id, balance, withdrawAmount);
         SIGNAL(&mutex);
-    } else{
-        printf("\nBalance: %d\t\tPre overdraw/wait of: %d", balance, withdrawAmount);
-        add_to_list(withdrawAmount, true); //adds withdrawAmount to the end of the list
+    } else {
+        printf("\nWithdrawer: %d\t\tBalance: %d\t\tPre overdraw/wait of: %d",id , balance, withdrawAmount);
+        head = add_to_list(withdrawAmount, id, true); //adds withdrawAmount to the end of the list
         wcount = wcount + 1;
         SIGNAL(&mutex);
-        WAIT(&wlist);
-        balance = balance - head->val;
-        printf("\nBalance: %d\t\tPost delayed withdrawal of: %d", balance, withdrawAmount);
+        while (id != threadIWantToWake) {
+            WAIT(&wlist);
+        }
+        balance = balance - withdrawAmount;
+        if(balance-withdrawAmount<0){
+            perror("A Balance of less than 0 was created!");
+        }
+        printf("\nWithdrawer: %d\t\tBalance: %d\t\tPost delayed withdrawal of: %d",id, balance, withdrawAmount);
         remove_head();
         wcount--;
         if(wcount != 0 && head != NULL && head->val <= balance) {
@@ -200,7 +224,7 @@ int randomVal() {
     return rand()%1000;
 }
 
-struct node * create_list(int val)
+struct node * create_list(int val, int threadID)
 {
     printf("\n creating list with headnode as [%d]\n",val);
     struct node *ptr = (struct node *)malloc(sizeof(struct node));
@@ -209,6 +233,7 @@ struct node * create_list(int val)
         return NULL;
     }
     ptr->val = val;
+    ptr->threadID = threadID;
     ptr->next = NULL;
 
     head = ptr;
@@ -216,10 +241,10 @@ struct node * create_list(int val)
     return head;
 }
 
-struct node * add_to_list(int val, bool add_to_end)
+struct node * add_to_list(int val,int threadID , bool add_to_end)
 {
     if(NULL == head) {
-        return (create_list(val));
+        return (create_list(val, threadID));
     }
     if(NULL == curr) {
         perror("CURR WAS NULL!");
@@ -235,6 +260,7 @@ struct node * add_to_list(int val, bool add_to_end)
         return NULL;
     }
     ptr->val = val;
+    ptr->threadID = threadID;
     ptr->next = NULL;
 
     if(add_to_end) {
