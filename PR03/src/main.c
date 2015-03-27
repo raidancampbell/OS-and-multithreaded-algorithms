@@ -42,7 +42,7 @@ sem_t wlist, mutex;
 
 int balance = 500;//initial starting balance
 int wcount = 0;
-int threadIWantToWake = 0;
+int threadIWantToWake = -99;
 struct node *head = NULL;
 struct node *curr = NULL;
 
@@ -50,9 +50,9 @@ struct threadInfo {int threadId;};
 
 int main(void) {
     srand((unsigned)time(NULL));    //Seed the Random Number Generator
-    int depositorCount = randomVal()%7;
+    int depositorCount = randomVal()%500;
     int depositorsRemaining = depositorCount;
-    int withdrawerCount = randomVal()%10;
+    int withdrawerCount = randomVal()%500;
     int withdrawerRemaining = withdrawerCount;
     printf("Counts initialized. %d Depositors\t\t%d Withdrawers", depositorCount, withdrawerCount);
     struct threadInfo depositorIDs[depositorCount];
@@ -84,7 +84,8 @@ int main(void) {
             }
         } else if(rnd==1 && withdrawerRemaining>0){
             withdrawerRemaining--;
-            int i = withdrawerCount = withdrawerRemaining;
+            int i = withdrawerCount - withdrawerRemaining;
+            withdrawerIDs[i].threadId = i;
             int result = pthread_create(&withdrawers[i], &attr, withdrawerThread, (void *) &withdrawerIDs[i]);
             if(result < 0) {
                 perror("Thread Creation: Withdrawer");
@@ -178,7 +179,7 @@ if (wcount = 0 and balance > withdraw){
     }
 } // Withdrawal is completed.
     */
-    int withdrawAmount = randomVal()%700;//slightly less than deposit amount, to help things move forward
+    int withdrawAmount = randomVal();//slightly less than deposit amount, to help things move forward
     if(withdrawAmount < 0){
         perror("WITHDRAW AMOUNT LESS THAN 0");
         exit(EXIT_FAILURE);
@@ -204,6 +205,7 @@ if (wcount = 0 and balance > withdraw){
             if(myThreadID == threadIWantToWake) {
                 printf("\nI'm the thread you wanted to awake, I say %d = %d", myThreadID, threadIWantToWake);
                 printf("\nInclusive of me, there are %d threads in line", wcount);
+                threadIWantToWake = -99;
                 break;
             }
         }
