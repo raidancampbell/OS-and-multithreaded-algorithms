@@ -24,6 +24,7 @@
 #include <pthread.h>
 #include <semaphore.h>
 
+
 struct node {
     int val;
     struct node *next;
@@ -38,7 +39,7 @@ struct node {
 void *depositorThread(void *threadId);
 void *withdrawerThread(void *threadId);
 struct node * create_list(int, int);//initializes a linked list
-struct node * add_to_list(int,int);//adds the given int pair to the linked list, bool=true for add to end
+struct node * add_to_list(int, int);//adds the given int pair to the linked list
 int remove_head();//moves the head pointer one back on the linked list
 
 //POSIX Semaphores and shared variables
@@ -83,8 +84,8 @@ int main(void) {
         if(usleep(1000)<0) perror("usleep");
         int rnd = rand()%2;
         if(rnd==0 && depositorsRemaining>0){
-            depositorsRemaining--;
             int i = depositorCount - depositorsRemaining;
+            depositorsRemaining--;
             depositorIDs[i].threadId = i;
             int result = pthread_create(&depositors[i], &attr, depositorThread, (void *)&depositorIDs[i]);
             if(result < 0) {
@@ -92,8 +93,8 @@ int main(void) {
                 exit(EXIT_FAILURE);
             }
         } else if(rnd==1 && withdrawerRemaining>0){
-            withdrawerRemaining--;
             int i = withdrawerCount - withdrawerRemaining;
+            withdrawerRemaining--;
             withdrawerIDs[i].threadId = i;
             int result = pthread_create(&withdrawers[i], &attr, withdrawerThread, (void *)&withdrawerIDs[i]);
             if(result < 0) {
@@ -104,23 +105,23 @@ int main(void) {
 
     }
     int i;
-    void *status;
     //Wait for all the threads to finish
     for(i = 0; i < depositorCount; i++) {
-        int result = pthread_join(depositors[i], &status);
+        int result = pthread_join(depositors[i], NULL);
         if(result < 0) {
             perror("Thread Join: Depositor");
             exit(EXIT_FAILURE);
         }
     }
-
+	printf("\nAll depositor threads finished and joined");
     for(i = 0; i < withdrawerCount; i++) {
-        int result = pthread_join(withdrawers[i], &status);
+        int result = pthread_join(withdrawers[i], NULL);
         if(result < 0) {
             perror("Thread Join: Withdrawer");
             exit(EXIT_FAILURE);
         }
     }
+	printf("\nAll withdrawer threads finished and joined, all threads finished.\n");
 	return EXIT_SUCCESS;
 }
 

@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -g -Wall
+CFLAGS = -g -Wall #-pedantic
 LIBS = -pthread
 SOURCE = main.c
 OUTPUT = main
