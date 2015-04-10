@@ -1,0 +1,23 @@
+Server has following commands
+    START(user)
+    QUIT(user)
+    RETRIEVE_MESSAGE(user, message number, message)
+    INSERT_MESSAGE(user, message number)
+    LIST_ALL_MESSAGES(user)
+    DELETE_MESSAGE(user, message number)
+
+    Capped at 20 messages, at 80 char/message
+    "user" is hostname+uuid number
+
+
+I have to write:
+    MailBox.x   (RPC protocol definitions)
+    Server.c (server source, containing the functions)
+    Client.c (client program)
+
+Generated code:
+    RPCGEN + Mailbox.x =
+        MailBox_xdr.c  (some bidirectional filter thing)
+        MailBox.h (common #includes(?))
+        MailBox_clnt.c (client stub)
+        MailBox_svc.c (server stub)
