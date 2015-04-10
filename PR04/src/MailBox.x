@@ -4,7 +4,6 @@
      str_t data;
  };
 
-
  struct retrieve_message_params {
     user given_user;
     int message_number;
