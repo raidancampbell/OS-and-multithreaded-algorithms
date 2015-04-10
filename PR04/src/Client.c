@@ -5,81 +5,40 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
 #include "MailBox.h"
 
+int main(int argc, char *argv[]) {
+    CLIENT         *client;
+    int            *return_value;
+    user           *myUser;
+    char           *server;
+    /*
+        We must specify a host on which to run.  We will get the host name
+        from the command line as argument 1.
+     */
+    if (argc != 2) {
+        fprintf(stderr, "Usage: %s host_name\n", *argv);
+        exit(1);
+    }
+    server = argv[1];
 
-/* Default timeout can be changed using clnt_control() */
-static struct timeval TIMEOUT = { 25, 0 };
+    char hostname[81];
+    hostname[80] = '\0';
+    gethostname(hostname, 80);
+    myUser = &(user) {.hostname=(string_wrapper){.data=hostname}, .uuid=42};
 
-
-void * start_1(user *givenUser, CLIENT *clnt)
-{
-    static int clnt_res;
-
-    memset((char *)&clnt_res, 0, sizeof(clnt_res));
-
-    if (clnt_call (clnt, start,
-                   (xdrproc_t) xdr_void, (caddr_t) givenUser,
-                   (xdrproc_t) xdr_int, (caddr_t) &clnt_res,
-                   TIMEOUT) != RPC_SUCCESS) {
-        return &clnt_res;
+    /* Generate the client handle to call the server */
+    if ((client=clnt_create(server,DISPLAY_PRG, DISPLAY_VER, "tcp")) == (CLIENT *) NULL) {
+        clnt_pcreateerror(server);
+        exit(2);
     }
 
-}
 
-void * quit_1(user *givenUser, CLIENT *clnt)
-{
-    static int clnt_res;
+    printf("client : Calling function.\n");
+    return_value = start_1((void *) &myUser, client);
 
-    memset((char *)&clnt_res, 0, sizeof(clnt_res));
-
-    if (clnt_call (clnt, quit,
-                   (xdrproc_t) xdr_void, (caddr_t) givenUser,
-                   (xdrproc_t) xdr_int, (caddr_t) &clnt_res,
-                   TIMEOUT) != RPC_SUCCESS) {
-        return &clnt_res;
-    }
-
-}
-
-string_wrapper * retrieve_message_1(retrieve_message_params *givenParams, CLIENT *clnt){
-    static int clnt_res;
-
-    memset((char *)&clnt_res, 0, sizeof(clnt_res));
-
-    if (clnt_call (clnt, retrieve_message,
-                   (xdrproc_t) xdr_void, (caddr_t) givenParams,
-                   (xdrproc_t) xdr_int, (caddr_t) &clnt_res,
-                   TIMEOUT) != RPC_SUCCESS) {
-        return &clnt_res;
-    }
-
-}
-
-string_wrapper * list_all_messages_1(user *givenUser, CLIENT *clnt){
-    static int clnt_res;
-
-    memset((char *)&clnt_res, 0, sizeof(clnt_res));
-
-    if (clnt_call (clnt, list_all_messages,
-                   (xdrproc_t) xdr_void, (caddr_t) givenUser,
-                   (xdrproc_t) xdr_int, (caddr_t) &clnt_res,
-                   TIMEOUT) != RPC_SUCCESS) {
-        return &clnt_res;
-    }
-
-}
-
-void * delete_message_1(delete_message_params *givenParams, CLIENT *clnt){
-    static int clnt_res;
-
-    memset((char *)&clnt_res, 0, sizeof(clnt_res));
-
-    if (clnt_call (clnt, delete_message,
-                   (xdrproc_t) xdr_void, (caddr_t) givenParams,
-                   (xdrproc_t) xdr_int, (caddr_t) &clnt_res,
-                   TIMEOUT) != RPC_SUCCESS) {
-        return &clnt_res;
-    }
-
+    if (*return_value)  printf("client : Mission accomplished.\n");
+    else  printf("client : Unable to display message.\n");
+    return 0;
 }
