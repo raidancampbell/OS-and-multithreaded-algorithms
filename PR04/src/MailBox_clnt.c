@@ -47,15 +47,15 @@ retrieve_message_1(argp, clnt)
 	return (&clnt_res);
 }
 
-string_wrapper *
+message_block *
 list_all_messages_1(argp, clnt)
 	user *argp;
 	CLIENT *clnt;
 {
-	static string_wrapper clnt_res;
+	static message_block clnt_res;
 
 	memset((char *)&clnt_res, 0, sizeof(clnt_res));
-	if (clnt_call(clnt, list_all_messages, xdr_user, argp, xdr_string_wrapper, &clnt_res, TIMEOUT) != RPC_SUCCESS)
+	if (clnt_call(clnt, list_all_messages, xdr_user, argp, xdr_message_block, &clnt_res, TIMEOUT) != RPC_SUCCESS)
 		return (NULL);
 	return (&clnt_res);
 }

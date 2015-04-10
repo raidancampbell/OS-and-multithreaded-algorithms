@@ -108,7 +108,7 @@ display_prg_1(rqstp, transp)
 
 	case list_all_messages:
 		xdr_argument = xdr_user;
-		xdr_result = xdr_string_wrapper;
+		xdr_result = xdr_message_block;
 		local = (char *(*)()) list_all_messages_1_svc;
 		break;
 

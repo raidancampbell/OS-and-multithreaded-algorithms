@@ -34,11 +34,13 @@ int main(int argc, char *argv[]) {
         exit(2);
     }
 
-
-    printf("client : Calling function.\n");
+    printf("client : initializing START, with username: %s%d.\n", hostname, 42);
     return_value = start_1((void *) &myUser, client);
+    if (*return_value)  printf("client : START successful.\n");
+    else  printf("client : START failed.\n");
 
-    if (*return_value)  printf("client : Mission accomplished.\n");
-    else  printf("client : Unable to display message.\n");
+
+
+
     return 0;
 }
