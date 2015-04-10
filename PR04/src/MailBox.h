@@ -21,6 +21,20 @@ bool_t xdr_str_t();
 #endif /* Old Style C */
 
 
+struct user {
+	string_wrapper hostname;
+	int uuid;
+};
+typedef struct user user;
+#ifdef __cplusplus
+extern "C" bool_t xdr_user(XDR *, user*);
+#elif __STDC__
+extern  bool_t xdr_user(XDR *, user*);
+#else /* Old Style C */
+bool_t xdr_user();
+#endif /* Old Style C */
+
+
 struct string_wrapper {
 	str_t data;
 };

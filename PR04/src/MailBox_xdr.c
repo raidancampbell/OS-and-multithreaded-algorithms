@@ -17,6 +17,19 @@ xdr_str_t(xdrs, objp)
 }
 
 bool_t
+xdr_user(xdrs, objp)
+	XDR *xdrs;
+	user *objp;
+{
+
+	if (!xdr_string_wrapper(xdrs, &objp->hostname))
+		return (FALSE);
+	if (!xdr_int(xdrs, &objp->uuid))
+		return (FALSE);
+	return (TRUE);
+}
+
+bool_t
 xdr_string_wrapper(xdrs, objp)
 	XDR *xdrs;
 	string_wrapper *objp;
