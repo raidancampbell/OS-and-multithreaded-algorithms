@@ -76,6 +76,7 @@ display_prg_1(rqstp, transp)
 		retrieve_message_params retrieve_message_1_arg;
 		user list_all_messages_1_arg;
 		delete_message_params delete_message_1_arg;
+		insert_message_params insert_message_1_arg;
 	} argument;
 	char *result;
 	bool_t (*xdr_argument)(), (*xdr_result)();
@@ -102,7 +103,7 @@ display_prg_1(rqstp, transp)
 
 	case retrieve_message:
 		xdr_argument = xdr_retrieve_message_params;
-		xdr_result = xdr_string_wrapper;
+		xdr_result = xdr_wrapstring;
 		local = (char *(*)()) retrieve_message_1_svc;
 		break;
 
@@ -116,6 +117,12 @@ display_prg_1(rqstp, transp)
 		xdr_argument = xdr_delete_message_params;
 		xdr_result = xdr_void;
 		local = (char *(*)()) delete_message_1_svc;
+		break;
+
+	case insert_message:
+		xdr_argument = xdr_insert_message_params;
+		xdr_result = xdr_void;
+		local = (char *(*)()) insert_message_1_svc;
 		break;
 
 	default:

@@ -34,15 +34,15 @@ quit_1(argp, clnt)
 	return ((void *)&clnt_res);
 }
 
-string_wrapper *
+char **
 retrieve_message_1(argp, clnt)
 	retrieve_message_params *argp;
 	CLIENT *clnt;
 {
-	static string_wrapper clnt_res;
+	static char *clnt_res;
 
 	memset((char *)&clnt_res, 0, sizeof(clnt_res));
-	if (clnt_call(clnt, retrieve_message, xdr_retrieve_message_params, argp, xdr_string_wrapper, &clnt_res, TIMEOUT) != RPC_SUCCESS)
+	if (clnt_call(clnt, retrieve_message, xdr_retrieve_message_params, argp, xdr_wrapstring, &clnt_res, TIMEOUT) != RPC_SUCCESS)
 		return (NULL);
 	return (&clnt_res);
 }
@@ -69,6 +69,19 @@ delete_message_1(argp, clnt)
 
 	memset((char *)&clnt_res, 0, sizeof(clnt_res));
 	if (clnt_call(clnt, delete_message, xdr_delete_message_params, argp, xdr_void, &clnt_res, TIMEOUT) != RPC_SUCCESS)
+		return (NULL);
+	return ((void *)&clnt_res);
+}
+
+void *
+insert_message_1(argp, clnt)
+	insert_message_params *argp;
+	CLIENT *clnt;
+{
+	static char clnt_res;
+
+	memset((char *)&clnt_res, 0, sizeof(clnt_res));
+	if (clnt_call(clnt, insert_message, xdr_insert_message_params, argp, xdr_void, &clnt_res, TIMEOUT) != RPC_SUCCESS)
 		return (NULL);
 	return ((void *)&clnt_res);
 }

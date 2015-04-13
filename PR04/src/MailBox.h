@@ -11,31 +11,8 @@
 #include <rpc/rpc.h>
 
 
-typedef char *str_t;
-#ifdef __cplusplus
-extern "C" bool_t xdr_str_t(XDR *, str_t*);
-#elif __STDC__
-extern  bool_t xdr_str_t(XDR *, str_t*);
-#else /* Old Style C */
-bool_t xdr_str_t();
-#endif /* Old Style C */
-
-
-typedef struct {
-	u_int string_wrapper_len;
-	message_block_type *string_wrapper_val;
-} string_wrapper;
-#ifdef __cplusplus
-extern "C" bool_t xdr_string_wrapper(XDR *, string_wrapper*);
-#elif __STDC__
-extern  bool_t xdr_string_wrapper(XDR *, string_wrapper*);
-#else /* Old Style C */
-bool_t xdr_string_wrapper();
-#endif /* Old Style C */
-
-
 struct user {
-	string_wrapper hostname;
+	char *hostname;
 	int uuid;
 };
 typedef struct user user;
@@ -48,23 +25,9 @@ bool_t xdr_user();
 #endif /* Old Style C */
 
 
-struct string_wrapper {
-	str_t data;
-};
-typedef struct string_wrapper string_wrapper;
-#ifdef __cplusplus
-extern "C" bool_t xdr_string_wrapper(XDR *, string_wrapper*);
-#elif __STDC__
-extern  bool_t xdr_string_wrapper(XDR *, string_wrapper*);
-#else /* Old Style C */
-bool_t xdr_string_wrapper();
-#endif /* Old Style C */
-
-
 struct retrieve_message_params {
 	user given_user;
 	int message_number;
-	string_wrapper message;
 };
 typedef struct retrieve_message_params retrieve_message_params;
 #ifdef __cplusplus
@@ -91,7 +54,7 @@ bool_t xdr_delete_message_params();
 
 
 struct message_block {
-	message_block_type data;
+	char *data;
 };
 typedef struct message_block message_block;
 #ifdef __cplusplus
@@ -100,6 +63,20 @@ extern "C" bool_t xdr_message_block(XDR *, message_block*);
 extern  bool_t xdr_message_block(XDR *, message_block*);
 #else /* Old Style C */
 bool_t xdr_message_block();
+#endif /* Old Style C */
+
+
+struct insert_message_params {
+	user given_user;
+	char *message;
+};
+typedef struct insert_message_params insert_message_params;
+#ifdef __cplusplus
+extern "C" bool_t xdr_insert_message_params(XDR *, insert_message_params*);
+#elif __STDC__
+extern  bool_t xdr_insert_message_params(XDR *, insert_message_params*);
+#else /* Old Style C */
+bool_t xdr_insert_message_params();
 #endif /* Old Style C */
 
 
@@ -114,14 +91,17 @@ extern "C" void * start_1_svc(user *, struct svc_req *);
 extern "C" void * quit_1(user *, CLIENT *);
 extern "C" void * quit_1_svc(user *, struct svc_req *);
 #define retrieve_message ((rpc_uint)3)
-extern "C" string_wrapper * retrieve_message_1(retrieve_message_params *, CLIENT *);
-extern "C" string_wrapper * retrieve_message_1_svc(retrieve_message_params *, struct svc_req *);
+extern "C" char ** retrieve_message_1(retrieve_message_params *, CLIENT *);
+extern "C" char ** retrieve_message_1_svc(retrieve_message_params *, struct svc_req *);
 #define list_all_messages ((rpc_uint)4)
 extern "C" message_block * list_all_messages_1(user *, CLIENT *);
 extern "C" message_block * list_all_messages_1_svc(user *, struct svc_req *);
 #define delete_message ((rpc_uint)5)
 extern "C" void * delete_message_1(delete_message_params *, CLIENT *);
 extern "C" void * delete_message_1_svc(delete_message_params *, struct svc_req *);
+#define insert_message ((rpc_uint)6)
+extern "C" void * insert_message_1(insert_message_params *, CLIENT *);
+extern "C" void * insert_message_1_svc(insert_message_params *, struct svc_req *);
 
 #elif __STDC__
 #define start ((rpc_uint)1)
@@ -131,14 +111,17 @@ extern  void * start_1_svc(user *, struct svc_req *);
 extern  void * quit_1(user *, CLIENT *);
 extern  void * quit_1_svc(user *, struct svc_req *);
 #define retrieve_message ((rpc_uint)3)
-extern  string_wrapper * retrieve_message_1(retrieve_message_params *, CLIENT *);
-extern  string_wrapper * retrieve_message_1_svc(retrieve_message_params *, struct svc_req *);
+extern  char ** retrieve_message_1(retrieve_message_params *, CLIENT *);
+extern  char ** retrieve_message_1_svc(retrieve_message_params *, struct svc_req *);
 #define list_all_messages ((rpc_uint)4)
 extern  message_block * list_all_messages_1(user *, CLIENT *);
 extern  message_block * list_all_messages_1_svc(user *, struct svc_req *);
 #define delete_message ((rpc_uint)5)
 extern  void * delete_message_1(delete_message_params *, CLIENT *);
 extern  void * delete_message_1_svc(delete_message_params *, struct svc_req *);
+#define insert_message ((rpc_uint)6)
+extern  void * insert_message_1(insert_message_params *, CLIENT *);
+extern  void * insert_message_1_svc(insert_message_params *, struct svc_req *);
 
 #else /* Old Style C */
 #define start ((rpc_uint)1)
@@ -148,14 +131,17 @@ extern  void * start_1_svc();
 extern  void * quit_1();
 extern  void * quit_1_svc();
 #define retrieve_message ((rpc_uint)3)
-extern  string_wrapper * retrieve_message_1();
-extern  string_wrapper * retrieve_message_1_svc();
+extern  char ** retrieve_message_1();
+extern  char ** retrieve_message_1_svc();
 #define list_all_messages ((rpc_uint)4)
 extern  message_block * list_all_messages_1();
 extern  message_block * list_all_messages_1_svc();
 #define delete_message ((rpc_uint)5)
 extern  void * delete_message_1();
 extern  void * delete_message_1_svc();
+#define insert_message ((rpc_uint)6)
+extern  void * insert_message_1();
+extern  void * insert_message_1_svc();
 #endif /* Old Style C */
 
 #endif /* !_MAILBOX_H_RPCGEN */

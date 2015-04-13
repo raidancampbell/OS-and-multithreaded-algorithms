@@ -6,47 +6,14 @@
 #include "MailBox.h"
 
 bool_t
-xdr_str_t(xdrs, objp)
-	XDR *xdrs;
-	str_t *objp;
-{
-
-	if (!xdr_string(xdrs, objp, 81))
-		return (FALSE);
-	return (TRUE);
-}
-
-bool_t
-xdr_string_wrapper(xdrs, objp)
-	XDR *xdrs;
-	string_wrapper *objp;
-{
-
-	if (!xdr_array(xdrs, (char **)&objp->string_wrapper_val, (u_int *)&objp->string_wrapper_len, 20, sizeof(message_block_type), (xdrproc_t)xdr_message_block_type))
-		return (FALSE);
-	return (TRUE);
-}
-
-bool_t
 xdr_user(xdrs, objp)
 	XDR *xdrs;
 	user *objp;
 {
 
-	if (!xdr_string_wrapper(xdrs, &objp->hostname))
+	if (!xdr_string(xdrs, &objp->hostname, 50))
 		return (FALSE);
 	if (!xdr_int(xdrs, &objp->uuid))
-		return (FALSE);
-	return (TRUE);
-}
-
-bool_t
-xdr_string_wrapper(xdrs, objp)
-	XDR *xdrs;
-	string_wrapper *objp;
-{
-
-	if (!xdr_str_t(xdrs, &objp->data))
 		return (FALSE);
 	return (TRUE);
 }
@@ -60,8 +27,6 @@ xdr_retrieve_message_params(xdrs, objp)
 	if (!xdr_user(xdrs, &objp->given_user))
 		return (FALSE);
 	if (!xdr_int(xdrs, &objp->message_number))
-		return (FALSE);
-	if (!xdr_string_wrapper(xdrs, &objp->message))
 		return (FALSE);
 	return (TRUE);
 }
@@ -85,7 +50,20 @@ xdr_message_block(xdrs, objp)
 	message_block *objp;
 {
 
-	if (!xdr_message_block_type(xdrs, &objp->data))
+	if (!xdr_string(xdrs, &objp->data, 1600))
+		return (FALSE);
+	return (TRUE);
+}
+
+bool_t
+xdr_insert_message_params(xdrs, objp)
+	XDR *xdrs;
+	insert_message_params *objp;
+{
+
+	if (!xdr_user(xdrs, &objp->given_user))
+		return (FALSE);
+	if (!xdr_string(xdrs, &objp->message, 80))
 		return (FALSE);
 	return (TRUE);
 }

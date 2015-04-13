@@ -1,8 +1,8 @@
 Server has following commands
     START(user)
     QUIT(user)
-    RETRIEVE_MESSAGE(user, message number, message)
-    INSERT_MESSAGE(user, message number)
+    RETRIEVE_MESSAGE(user, message number)
+    INSERT_MESSAGE(user, message)
     LIST_ALL_MESSAGES(user)
     DELETE_MESSAGE(user, message number)
 
