@@ -29,7 +29,7 @@ int callStart(user*, CLIENT*, int*);
 int callInsertMessage(user, char*, CLIENT*, int*);
 char* callListAllMessages(user*, CLIENT*);
 char* callRetrieveMessage(user,int, CLIENT*);
-int* callDeleteMessage(user*, int, CLIENT*);
+int callDeleteMessage(user*, int, CLIENT*);
 int callStop(user*, CLIENT*, int*);
 
 int main(int argc, char *argv[]) {
@@ -113,12 +113,12 @@ char* callListAllMessages(user* myUser, CLIENT* client){
     return return_value->data;
 }
 
-int* callDeleteMessage(user* myUser, int messageID, CLIENT* client){
+int callDeleteMessage(user* myUser, int messageID, CLIENT* client){
     printf("\nclient : deleting message %d", messageID);
     delete_message_params params;
     params.message_number = messageID;
     params.given_user = *myUser;
-    return delete_message_1(&params, client);
+    return *delete_message_1(&params, client);
 }
 
 char* callRetrieveMessage(user myUser, int messageID,  CLIENT* client){
