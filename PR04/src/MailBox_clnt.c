@@ -8,30 +8,30 @@
 /* Default timeout can be changed using clnt_control() */
 static struct timeval TIMEOUT = { 25, 0 };
 
-void *
+int *
 start_1(argp, clnt)
 	user *argp;
 	CLIENT *clnt;
 {
-	static char clnt_res;
+	static int clnt_res;
 
 	memset((char *)&clnt_res, 0, sizeof(clnt_res));
-	if (clnt_call(clnt, start, xdr_user, argp, xdr_void, &clnt_res, TIMEOUT) != RPC_SUCCESS)
+	if (clnt_call(clnt, start, xdr_user, argp, xdr_int, &clnt_res, TIMEOUT) != RPC_SUCCESS)
 		return (NULL);
-	return ((void *)&clnt_res);
+	return (&clnt_res);
 }
 
-void *
+int *
 quit_1(argp, clnt)
 	user *argp;
 	CLIENT *clnt;
 {
-	static char clnt_res;
+	static int clnt_res;
 
 	memset((char *)&clnt_res, 0, sizeof(clnt_res));
-	if (clnt_call(clnt, quit, xdr_user, argp, xdr_void, &clnt_res, TIMEOUT) != RPC_SUCCESS)
+	if (clnt_call(clnt, quit, xdr_user, argp, xdr_int, &clnt_res, TIMEOUT) != RPC_SUCCESS)
 		return (NULL);
-	return ((void *)&clnt_res);
+	return (&clnt_res);
 }
 
 char **
@@ -60,28 +60,28 @@ list_all_messages_1(argp, clnt)
 	return (&clnt_res);
 }
 
-void *
+int *
 delete_message_1(argp, clnt)
 	delete_message_params *argp;
 	CLIENT *clnt;
 {
-	static char clnt_res;
+	static int clnt_res;
 
 	memset((char *)&clnt_res, 0, sizeof(clnt_res));
-	if (clnt_call(clnt, delete_message, xdr_delete_message_params, argp, xdr_void, &clnt_res, TIMEOUT) != RPC_SUCCESS)
+	if (clnt_call(clnt, delete_message, xdr_delete_message_params, argp, xdr_int, &clnt_res, TIMEOUT) != RPC_SUCCESS)
 		return (NULL);
-	return ((void *)&clnt_res);
+	return (&clnt_res);
 }
 
-void *
+int *
 insert_message_1(argp, clnt)
 	insert_message_params *argp;
 	CLIENT *clnt;
 {
-	static char clnt_res;
+	static int clnt_res;
 
 	memset((char *)&clnt_res, 0, sizeof(clnt_res));
-	if (clnt_call(clnt, insert_message, xdr_insert_message_params, argp, xdr_void, &clnt_res, TIMEOUT) != RPC_SUCCESS)
+	if (clnt_call(clnt, insert_message, xdr_insert_message_params, argp, xdr_int, &clnt_res, TIMEOUT) != RPC_SUCCESS)
 		return (NULL);
-	return ((void *)&clnt_res);
+	return (&clnt_res);
 }

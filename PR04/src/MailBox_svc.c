@@ -91,13 +91,13 @@ display_prg_1(rqstp, transp)
 
 	case start:
 		xdr_argument = xdr_user;
-		xdr_result = xdr_void;
+		xdr_result = xdr_int;
 		local = (char *(*)()) start_1_svc;
 		break;
 
 	case quit:
 		xdr_argument = xdr_user;
-		xdr_result = xdr_void;
+		xdr_result = xdr_int;
 		local = (char *(*)()) quit_1_svc;
 		break;
 
@@ -115,13 +115,13 @@ display_prg_1(rqstp, transp)
 
 	case delete_message:
 		xdr_argument = xdr_delete_message_params;
-		xdr_result = xdr_void;
+		xdr_result = xdr_int;
 		local = (char *(*)()) delete_message_1_svc;
 		break;
 
 	case insert_message:
 		xdr_argument = xdr_insert_message_params;
-		xdr_result = xdr_void;
+		xdr_result = xdr_int;
 		local = (char *(*)()) insert_message_1_svc;
 		break;
 

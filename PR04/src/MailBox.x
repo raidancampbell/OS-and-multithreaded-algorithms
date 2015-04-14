@@ -25,12 +25,12 @@
  program DISPLAY_PRG {
         version DISPLAY_VER {
 
-          void start(user) = 1;
-          void quit(user) = 2;
+          int start(user) = 1;
+          int quit(user) = 2;
           string retrieve_message (retrieve_message_params) = 3;
           /*I have no idea what the string parameter was for there*/
           message_block list_all_messages (user) = 4;
-          void delete_message(delete_message_params) = 5;
-          void insert_message(insert_message_params) = 6;
+          int delete_message(delete_message_params) = 5;
+          int insert_message(insert_message_params) = 6;
         } = 1;
  } = 0x20000001;
