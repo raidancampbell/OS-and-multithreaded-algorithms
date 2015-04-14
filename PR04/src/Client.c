@@ -3,8 +3,8 @@
 /*Server has following commands
     START(user)
     QUIT(user)
-    RETRIEVE_MESSAGE(user, message number, message)
-    INSERT_MESSAGE(user, message number)
+    RETRIEVE_MESSAGE(user, message number)
+    INSERT_MESSAGE(user, message)
     LIST_ALL_MESSAGES(user)
     DELETE_MESSAGE(user, message number)
 
@@ -26,6 +26,7 @@
 
 user* getUser();
 int callStart(user*, CLIENT*, int*);
+int callInsertMessage(user, char*, CLIENT*, int*);
 
 int main(int argc, char *argv[]) {
     CLIENT         *client;
@@ -50,9 +51,16 @@ int main(int argc, char *argv[]) {
     //START
     return_value =  (int*) callStart(myUser, client, return_value);
     if(!*return_value) return 0;
-    sleep(20u);/*I need time for both clients to be up, before talking to the server*/
+    sleep(10u);/*I need time for both clients to be up, before talking to the server*/
 
     //INSERT_MESSAGE
+    user destinationUser = (user) {.hostname="eecslinab3", .uuid=42};
+    return_value = (int*) callInsertMessage(destinationUser, "someone said hello!", client, return_value);
+    if(!*return_value) return 0;
+    sleep(5u);
+
+    //LIST_ALL_MESSAGES
+
 
     return (int) return_value;
 }
@@ -72,5 +80,13 @@ int callStart(user* myUser, CLIENT* client, int* return_value){
     return_value = start_1((void *) &myUser, client);
     if (*return_value)  printf("client : START successful.\n");
     else  printf("client : START failed.\n");
+    return (int) return_value;
+}
+
+int callInsertMessage(user destinationUser, char* message, CLIENT* client, int* return_value){
+    printf("client : Inserting Message to username: %s%d.\n", destinationUser.hostname, destinationUser.uuid);
+    return_value = insert_message_1(&((insert_message_params){.given_user=destinationUser, .message=message}), return_value);
+    if (*return_value)  printf("client : insert_message successful.\n");
+    else  printf("client : insert_message failed.\n");
     return (int) return_value;
 }
