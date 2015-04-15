@@ -7,15 +7,15 @@ CSOURCE = Client.c MailBox_clnt.c MailBox_xdr.c
 SSOURCE = Server.c MailBox_svc.c MailBox_xdr.c
 RPCSRC = MailBox.x
 RPCGEN = MailBox.h MailBox_clnt.c MailBox_svc.c MailBox_xdr.c
-CLIENT = client.bin
-SERVER = server.bin
+CLIENT = client
+SERVER = server
 
 all: $(CLIENT) $(SERVER)
 
-smoker: $(CSOURCE) $(RPCGEN)
+client: $(CSOURCE) $(RPCGEN)
 	$(CC) $(LIBS) $(CFLAGS) -o $(CLIENT) $(CSOURCE)
 
-agent: $(SSOURCE) $(RPCGEN)
+server: $(SSOURCE) $(RPCGEN)
 	$(CC) $(LIBS) $(CFLAGS) -o $(SERVER) $(SSOURCE)
 
 $(RPCGEN): $(RPCSRC)
