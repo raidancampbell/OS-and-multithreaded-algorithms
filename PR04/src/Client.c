@@ -73,7 +73,7 @@ int main(int argc, char *argv[]) {
     printf("\nreceived message \n%s", string);
 
     //DELETE_MESSAGE
-    return_value  = callDeleteMessage(myUser, 0, client);
+    return_value  = (int*) callDeleteMessage(myUser, 0, client);//TODO: probably bad cast here.
     if(!*return_value) return 0;
 
     return_value = (int*) callStop(myUser, client, return_value);

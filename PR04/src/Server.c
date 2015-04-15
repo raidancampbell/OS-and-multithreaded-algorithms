@@ -77,6 +77,8 @@ int * quit_1_svc(user * myUser, struct svc_req * req){
         emptyMail[j]=emptyMessage();
     }
     mailboxes[userID] = (struct userMailBox){.user1=*myUser,.mail=emptyMail};
+    int EXIT__SUCCESS;
+    return &EXIT__SUCCESS;
 }
 
 char ** retrieve_message_1_svc(retrieve_message_params * params, struct svc_req * req){
