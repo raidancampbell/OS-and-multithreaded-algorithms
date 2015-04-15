@@ -65,5 +65,7 @@ xdr_insert_message_params(xdrs, objp)
 		return (FALSE);
 	if (!xdr_string(xdrs, &objp->message, 80))
 		return (FALSE);
+	if (!xdr_int(xdrs, &objp->message_number))
+		return (FALSE);
 	return (TRUE);
 }

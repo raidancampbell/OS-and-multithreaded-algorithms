@@ -20,6 +20,7 @@
  struct insert_message_params {
     user given_user;
     string message<80>;
+    int message_number;
  };
 
  program DISPLAY_PRG {

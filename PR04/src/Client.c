@@ -97,7 +97,7 @@ int callStart(user* myUser, CLIENT* client, int* return_value){
 
 int callInsertMessage(user destinationUser, char* message, CLIENT* client, int* return_value){
     printf("\nclient : Inserting Message to username: %s%d.\n", destinationUser.hostname, destinationUser.uuid);
-    return_value = insert_message_1(&((insert_message_params){.given_user=destinationUser, .message=message}), client);
+    return_value = insert_message_1(&((insert_message_params){.given_user=destinationUser, .message=message, .message_number=0}), client);
     if (*return_value)  printf("\nclient : insert_message successful.\n");
     else  printf("\nclient : insert_message failed.\n");
     return *return_value;

@@ -69,6 +69,7 @@ bool_t xdr_message_block();
 struct insert_message_params {
 	user given_user;
 	char *message;
+	int message_number;
 };
 typedef struct insert_message_params insert_message_params;
 #ifdef __cplusplus
