@@ -54,6 +54,8 @@ int main(int argc, char *argv[]) {
         exit(2);
     }
     //START
+    int why = 0;
+    return_value = &why;
     return_value =  (int*) callStart(myUser, client, return_value);
     if(!*return_value) return 0;
     sleep(10u);/*I need time for both clients to be up, before talking to the server*/
@@ -76,6 +78,7 @@ int main(int argc, char *argv[]) {
     return_value  = (int*) callDeleteMessage(myUser, 0, client);//TODO: probably bad cast here.
     if(!*return_value) return 0;
 
+    //STOP
     return_value = (int*) callStop(myUser, client, return_value);
     return (int) return_value;
 }

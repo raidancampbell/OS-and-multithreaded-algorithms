@@ -20,25 +20,22 @@ struct userMailBox mailboxes[10];
 int getIndexFromUser(user *);
 int initFlag = 0;
 
+/* used for clearing and initializing mailboxes*/
 struct message emptyMessage(){
     char empty = ' ';
     return (struct message){.text=&empty};
 }
+
 //only run once.
 //set each user's uuid to 0, and set the mailboxes to be full of empty messages
 void init(){
     if(initFlag>0) return;
     initFlag++;
 
-    int i;
-    struct message emptyMail[20];
-    for(int j = 0; j<20; j++) {
-        emptyMail[j]=emptyMessage();
-    }
-
-    for(i = 0; i < sizeof(users) / sizeof(struct user); i++) {
+    for(int i = 0; i < sizeof(users) / sizeof(struct user); i++) {
         users[i].uuid = 0;
-        mailboxes[i] = (struct userMailBox){.user1=NULL,.mail=emptyMail};
+	struct userMailBox temp = {.user1=NULL,.mail=NULL};
+        mailboxes[i] = temp;
     }
 }
 
@@ -52,38 +49,45 @@ int getFreeUser(){
     return -1;
 }
 
+/*START function.  It creates a user in the system */
 int * start_1_svc(user * myUser, struct svc_req * req) {
     init();
-    //make a new mailBox for 'myUser'
-    int USER_ALREADY_EXISTS = -1;
-    int USER_CREATE_SUCCESS = 1;
-    if(getIndexFromUser(myUser) >= 0) return &USER_ALREADY_EXISTS;//user already started
+    int * USER_ALREADY_EXISTS = malloc(sizeof(int));
+    int why = -1;
+    USER_ALREADY_EXISTS = &why;
+    int * USER_CREATE_SUCCESS = malloc(sizeof(int));
+    why = 1;
+    USER_CREATE_SUCCESS = &why;
+    if(getIndexFromUser(myUser) >= 0) return USER_ALREADY_EXISTS;//user already started
     int i = getFreeUser();
 
     users[i] = *myUser;
-    struct message emptyMail[20];
+    struct userMailBox newUser;
+    newUser.user1 = *myUser;
     for(int j = 0; j<20; j++) {
-        emptyMail[j]=emptyMessage();
+	    newUser.mail[j]=emptyMessage();
     }
-    mailboxes[i] = (struct userMailBox){.user1=*myUser,.mail=emptyMail};
-    return &USER_CREATE_SUCCESS;
+    mailboxes[i] = newUser;
+    return USER_CREATE_SUCCESS;
 }
 
+/*QUIT function. removes the user created by START by removing identifiable information*/
 int * quit_1_svc(user * myUser, struct svc_req * req){
     int userID = getIndexFromUser(myUser);
     users[userID].uuid = 0;
-    struct message emptyMail[20];
     for(int j = 0; j<20; j++) {
-        emptyMail[j]=emptyMessage();
+        mailboxes[userID].mail[j] = emptyMessage();
     }
-    mailboxes[userID] = (struct userMailBox){.user1=*myUser,.mail=emptyMail};
-    int EXIT__SUCCESS;
-    return &EXIT__SUCCESS;
+    int * EXIT__SUCCESS = malloc(sizeof(int));
+    int why = 1;
+    EXIT__SUCCESS = &why;
+    return EXIT__SUCCESS;
 }
 
-char ** retrieve_message_1_svc(retrieve_message_params * params, struct svc_req * req){
-    user inQuestion = retrieve_message_params.given_user;
-    int messageNumber = retrieve_message_params.message_number;
+/*RETRIEVE_MESSAGE function.  returns the char* of the message indicated */
+char ** retrieve_message_1_svc(struct retrieve_message_params * params, struct svc_req * req){
+    user inQuestion = params->given_user;
+    int messageNumber = params->message_number;
     printf("server : retrieving message %d from user %s%d", messageNumber, inQuestion.hostname, inQuestion.uuid);
     if(0<=messageNumber && messageNumber <20){
         int i = getIndexFromUser(&inQuestion);
@@ -93,47 +97,60 @@ char ** retrieve_message_1_svc(retrieve_message_params * params, struct svc_req 
     return NULL;
 }
 
+/* returns all the messages that this user has as a message block struct, NULL if not found */
 message_block * list_all_messages_1_svc(user * myUser, struct svc_req * req){
     char* string = NULL;
     int userID = getIndexFromUser(myUser);
+    if(userID<0) return NULL;
     for(int j = 0; j<20; j++) {
-        string = strcat(string, mailboxes[userID].mail[j]);
-        string = strcat(string, '\n');
+        string = strcat(string, mailboxes[userID].mail[j].text);
+        string = strcat(string, "\n");
     }
-    return (message_block*)&{.data=string};
+    string = strcat(string, "\0");//dat null termination
+    struct message_block * return_var = malloc(sizeof(struct message_block));
+    struct message_block why = (struct message_block){.data=string};
+    return_var = &why;
+    return return_var;
 }
 
 int * delete_message_1_svc(delete_message_params * params, struct svc_req * req){
-    int MESSAGE_DELETE_SUCCESSFUL = 1;
-    int MESSAGE_DELETE_FAILED = -1;
+    int * MESSAGE_DELETE_SUCCESSFUL = malloc(sizeof(int));
+    int why = 1;
+    MESSAGE_DELETE_SUCCESSFUL = &why;
+    why = -1;
+    int * MESSAGE_DELETE_FAILED = malloc(sizeof(int));
+    MESSAGE_DELETE_FAILED = &why;
     user givenUser = params->given_user;
     int messageNumber = params->message_number;
     int userID = getIndexFromUser(&givenUser);
     if(0<=messageNumber && messageNumber <20) {
         mailboxes[userID].mail[messageNumber] = emptyMessage();
-        return &MESSAGE_DELETE_SUCCESSFUL;
+        return MESSAGE_DELETE_SUCCESSFUL;
     }
-    return &MESSAGE_DELETE_FAILED;
+    return MESSAGE_DELETE_FAILED;
 }
 
 int * insert_message_1_svc(insert_message_params * params, struct svc_req * req){
-    int MESSAGE_DELETE_SUCCESSFUL = 1;
-    int MESSAGE_DELETE_FAILED = -1;
+    int * MESSAGE_INSERT_SUCCESSFUL = malloc(sizeof(int));
+    int why = 1;
+    MESSAGE_INSERT_SUCCESSFUL = &why;
+    why = -1;
+    int * MESSAGE_INSERT_FAILED = malloc(sizeof(int));
+    MESSAGE_INSERT_FAILED = &why;
     user givenUser = params->given_user;
     char* messageText = params->message;
     int messageNumber = params->message_number;
     int userID = getIndexFromUser(&givenUser);
     if(0<=messageNumber && messageNumber <20) {
         mailboxes[userID].mail[messageNumber] = (struct message){.text=messageText};
-        return &MESSAGE_DELETE_SUCCESSFUL;
+        return MESSAGE_INSERT_SUCCESSFUL;
     }
-    return &MESSAGE_DELETE_FAILED;
+    return MESSAGE_INSERT_FAILED;
 }
 
 int getIndexFromUser(user * givenUser){
     int i;
-    for(i = 0; i < sizeof(users) / sizeof(struct user); i++)
-    {
+    for(i = 0; i < sizeof(users) / sizeof(struct user); i++) {
         if(strcmp(users[i].hostname, givenUser->hostname) == 0 && users[i].uuid==givenUser->uuid){
             return i;
         }
