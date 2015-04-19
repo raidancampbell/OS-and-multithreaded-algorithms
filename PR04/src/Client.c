@@ -47,12 +47,14 @@ int main(int argc, char *argv[]) {
     }
 
     server = argv[1];
+    printf("client: initialized arguments");
     myUser = getUser();
     /* Generate the client handle to call the server */
     if ((client=clnt_create(server,DISPLAY_PRG, DISPLAY_VER, "tcp")) == (CLIENT*) NULL) {
         clnt_pcreateerror(server);
         exit(2);
     }
+    printf("client: hooked on to server");
     //START
     int why = 0;
     return_value = &why;
@@ -89,7 +91,7 @@ user* getUser(){
     if(gethostname(myHost, sizeof(myHost)) < 0) perror("HOSTNAME");
     return &(user) {.hostname=myHost, .uuid=42};
 }
-
+/*wrapper method for START command*/
 int callStart(user* myUser, CLIENT* client, int* return_value){
     printf("\nclient : initializing START, with username: %s%d.", myUser->hostname, myUser->uuid);
     return_value = start_1(myUser, client);
@@ -98,6 +100,7 @@ int callStart(user* myUser, CLIENT* client, int* return_value){
     return *return_value;
 }
 
+/*wrapper method for INSERT_MESSAGE command*/
 int callInsertMessage(user destinationUser, char* message, CLIENT* client, int* return_value){
     printf("\nclient : Inserting Message to username: %s%d.\n", destinationUser.hostname, destinationUser.uuid);
     return_value = insert_message_1(&((insert_message_params){.given_user=destinationUser, .message=message, .message_number=0}), client);
@@ -106,6 +109,7 @@ int callInsertMessage(user destinationUser, char* message, CLIENT* client, int* 
     return *return_value;
 }
 
+/*wrapper method for LIST_ALL_MESSAGES command*/
 char* callListAllMessages(user* myUser, CLIENT* client){
     printf("\nclient : listing all messages");
     message_block * return_value = list_all_messages_1(myUser, client);
@@ -116,6 +120,7 @@ char* callListAllMessages(user* myUser, CLIENT* client){
     return return_value->data;
 }
 
+/*wrapper method for DELETE_MESSAGES command*/
 int callDeleteMessage(user* myUser, int messageID, CLIENT* client){
     printf("\nclient : deleting message %d", messageID);
     delete_message_params params;
@@ -124,6 +129,7 @@ int callDeleteMessage(user* myUser, int messageID, CLIENT* client){
     return *delete_message_1(&params, client);
 }
 
+/*wrapper method for RETRIEVE_MESSAGES command*/
 char* callRetrieveMessage(user myUser, int messageID,  CLIENT* client){
     printf("\nclient : retrieving message %d", messageID);
     retrieve_message_params params;
@@ -133,6 +139,7 @@ char* callRetrieveMessage(user myUser, int messageID,  CLIENT* client){
     return return_value;
 }
 
+/*wrapper method for STOP command*/
 int callStop(user* myUser, CLIENT* client, int* return_value){
     printf("\nclient : quitting");
     return_value = quit_1(myUser, client);

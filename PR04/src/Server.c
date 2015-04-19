@@ -1,5 +1,7 @@
 //
 // Created by Aidan Campbell on 4/10/15.
+//Tekin says "easiest assignment"
+//I say "no."
 //
 
 #include <rpc/rpc.h>
@@ -84,7 +86,7 @@ int * quit_1_svc(user * myUser, struct svc_req * req){
     return EXIT__SUCCESS;
 }
 
-/*RETRIEVE_MESSAGE function.  returns the char* of the message indicated */
+/*RETRIEVE_MESSAGE function. returns the char* of the message indicated in the parameters */
 char ** retrieve_message_1_svc(struct retrieve_message_params * params, struct svc_req * req){
     user inQuestion = params->given_user;
     int messageNumber = params->message_number;
@@ -97,7 +99,7 @@ char ** retrieve_message_1_svc(struct retrieve_message_params * params, struct s
     return NULL;
 }
 
-/* returns all the messages that this user has as a message block struct, NULL if not found */
+/*LIST_ALL_MESSAGES returns all the messages in the given user's mailbox as a message block struct, NULL if not found */
 message_block * list_all_messages_1_svc(user * myUser, struct svc_req * req){
     char* string = NULL;
     int userID = getIndexFromUser(myUser);
@@ -112,7 +114,7 @@ message_block * list_all_messages_1_svc(user * myUser, struct svc_req * req){
     return_var = &why;
     return return_var;
 }
-
+/*DELETE_MESSAGE function. removes the message of the given index for the given user*/
 int * delete_message_1_svc(delete_message_params * params, struct svc_req * req){
     int * MESSAGE_DELETE_SUCCESSFUL = malloc(sizeof(int));
     int why = 1;
@@ -129,7 +131,7 @@ int * delete_message_1_svc(delete_message_params * params, struct svc_req * req)
     }
     return MESSAGE_DELETE_FAILED;
 }
-
+/*INSERT_MESSAGE function. sets the message of the given index for the given user with the given string*/
 int * insert_message_1_svc(insert_message_params * params, struct svc_req * req){
     int * MESSAGE_INSERT_SUCCESSFUL = malloc(sizeof(int));
     int why = 1;
@@ -147,7 +149,7 @@ int * insert_message_1_svc(insert_message_params * params, struct svc_req * req)
     }
     return MESSAGE_INSERT_FAILED;
 }
-
+/*helper function, used to get the array index of a user in the array, since mailboxes are index-aligned*/
 int getIndexFromUser(user * givenUser){
     int i;
     for(i = 0; i < sizeof(users) / sizeof(struct user); i++) {
